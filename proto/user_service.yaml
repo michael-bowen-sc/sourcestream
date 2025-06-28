@@ -1,0 +1,10 @@
+type: google.api.Service
+config_version: 3
+
+http:
+  rules:
+    - selector: backend.UserService.RegisterContributor
+      post: "/v1/contributors:register"
+      body: "*"
+    - selector: backend.UserService.GetContributor
+      get: "/v1/contributors/{corporate_id}"

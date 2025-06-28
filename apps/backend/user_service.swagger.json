@@ -1,0 +1,148 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "user_service.proto",
+    "version": "version not set"
+  },
+  "tags": [
+    {
+      "name": "UserService"
+    }
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/v1/contributors/{corporateId}": {
+      "get": {
+        "operationId": "UserService_GetContributor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/backendGetContributorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "corporateId",
+            "in": "path",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    },
+    "/v1/contributors:register": {
+      "post": {
+        "operationId": "UserService_RegisterContributor",
+        "responses": {
+          "200": {
+            "description": "A successful response.",
+            "schema": {
+              "$ref": "#/definitions/backendRegisterContributorResponse"
+            }
+          },
+          "default": {
+            "description": "An unexpected error response.",
+            "schema": {
+              "$ref": "#/definitions/rpcStatus"
+            }
+          }
+        },
+        "parameters": [
+          {
+            "name": "body",
+            "in": "body",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/backendRegisterContributorRequest"
+            }
+          }
+        ],
+        "tags": [
+          "UserService"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "backendGetContributorResponse": {
+      "type": "object",
+      "properties": {
+        "corporateId": {
+          "type": "string"
+        },
+        "githubUsername": {
+          "type": "string"
+        },
+        "approvedProjects": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "backendRegisterContributorRequest": {
+      "type": "object",
+      "properties": {
+        "corporateId": {
+          "type": "string"
+        },
+        "githubUsername": {
+          "type": "string"
+        }
+      }
+    },
+    "backendRegisterContributorResponse": {
+      "type": "object",
+      "properties": {
+        "message": {
+          "type": "string"
+        }
+      }
+    },
+    "protobufAny": {
+      "type": "object",
+      "properties": {
+        "@type": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": {}
+    },
+    "rpcStatus": {
+      "type": "object",
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "message": {
+          "type": "string"
+        },
+        "details": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "$ref": "#/definitions/protobufAny"
+          }
+        }
+      }
+    }
+  }
+}
