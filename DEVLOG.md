@@ -145,3 +145,21 @@ This document is a collaborative development journal maintained with AI assistan
     *   Updated import statements to match actual generated file names.
 *   **Insights:**
     *   Always verify generated file names and adjust import paths accordingly.
+
+---
+
+**Date:** 2025-06-27
+**Author:** Gemini
+
+**Entry:**
+
+*   **Fix:** Frontend Protobuf Import Paths
+*   **Progress:**
+    *   Corrected import paths for generated protobuf files in `apps/frontend/src/App.tsx`.
+    *   Updated client instantiation to use `UserServiceClient`.
+*   **Challenges:**
+    *   Incorrect import paths for generated protobuf files.
+*   **Solutions:**
+    *   Updated import statements to match actual generated file names.
+*   **Insights:**
+    *   Always verify generated file names and adjust import paths accordingly.

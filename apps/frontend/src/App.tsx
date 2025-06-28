@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Card, Input, Space, Typography } from 'antd';
 import { UserServicePromiseClient } from '../pb/UserService_grpc_web_pb';
+import { UserServiceClient } from '../pb/User_serviceServiceClientPb';
 import { RegisterContributorRequest, GetContributorRequest } from '../pb/user_service_pb';
 
 const { Title, Text } = Typography;
