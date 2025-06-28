@@ -1,0 +1,40 @@
+run:
+  timeout: 5m
+  issues-exit-code: 1
+  tests: false
+
+linters-settings:
+  goimports:
+    local-prefixes: sourcestream/backend
+
+linters:
+  enable:
+    - goimports
+    - revive
+    - govet
+    - staticcheck
+    - unused
+    - deadcode
+    - structcheck
+    - varcheck
+    - ineffassign
+    - typecheck
+    - gosimple
+    - unconvert
+    - errcheck
+    - goconst
+    - gofmt
+    - gosec
+    - stylecheck
+    - asciicheck
+    - bodyclose
+    - misspell
+    - nakedret
+    - prealloc
+    - rowserrcheck
+    - wsl
+
+issues:
+  exclude-use-default: false
+  max-issues-per-linter: 0
+  max-same-issues: 0

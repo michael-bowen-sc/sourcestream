@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package backend;
+
+option go_package = "sourcestream/backend/pb";
+
+service UserService {
+  rpc RegisterContributor (RegisterContributorRequest) returns (RegisterContributorResponse);
+  rpc GetContributor (GetContributorRequest) returns (GetContributorResponse);
+}
+
+message RegisterContributorRequest {
+  string corporate_id = 1;
+  string github_username = 2;
+}
+
+message RegisterContributorResponse {
+  string message = 1;
+}
+
+message GetContributorRequest {
+  string corporate_id = 1;
+}
+
+message GetContributorResponse {
+  string corporate_id = 1;
+  string github_username = 2;
+  repeated string approved_projects = 3;
+}
