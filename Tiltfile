@@ -1,4 +1,4 @@
-load("ext://go_mod_dep.tilt_extension")
+load("ext://go_mod_dep.tilt_extension", "go_mod_dep")
 
 # Backend Go service
 go_mod_dep("apps/backend")
