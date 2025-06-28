@@ -5,7 +5,7 @@ import { RegisterContributorRequest, GetContributorRequest } from '../pb/UserSer
 
 const { Title, Text } = Typography;
 
-const client = new UserServicePromiseClient('http://localhost:8080'); // gRPC-web gateway address
+const client = new UserServiceClient('http://localhost:8080'); // gRPC-web gateway address
 
 function App() {
   const [corporateId, setCorporateId] = useState('');
