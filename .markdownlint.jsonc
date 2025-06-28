@@ -1,0 +1,7 @@
+{
+  "extends": "markdownlint-config-standard",
+  "rules": {
+    "MD013": false,
+    "MD051": true
+  }
+}

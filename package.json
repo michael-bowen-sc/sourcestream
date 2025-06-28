@@ -4,9 +4,19 @@
   "description": "SourceStream is a comprehensive platform designed to streamline and enhance the management of OSPO supported activities, policies and procedures. It offers robust tools for onboarding, cataloging, and reporting, ensuring seamless integration and workflow management.",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "lint:md": "markdownlint -f \"**/*.md\" --ignore \"node_modules/**\"",
+    "test": "vitest",
+    "lint:md": "markdownlint-cli2 \"**/*.md\" --ignore \"node_modules/**\"",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\"",
+    "precommit": "lint-staged",
     "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,jsx,ts,tsx,json,css,md}": [
+      "prettier --write"
+    ],
+    "*.md": [
+      "markdownlint-cli2"
+    ]
   },
   "keywords": [],
   "author": "",
@@ -21,7 +31,12 @@
     "commitizen": "^4.3.1",
     "cz-conventional-changelog": "^3.3.0",
     "husky": "^9.1.7",
+    "lint-staged": "^15.5.2",
     "markdownlint-cli": "^0.45.0",
-    "validate-branch-name": "^1.3.2"
+    "markdownlint-cli2": "^0.18.1",
+    "markdownlint-rule-relative-links": "^3.0.0",
+    "prettier": "^3.6.2",
+    "validate-branch-name": "^1.3.2",
+    "vitest": "^3.2.4"
   }
 }
