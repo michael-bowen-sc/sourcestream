@@ -9,12 +9,12 @@ This document provides guidelines for the Gemini AI to follow when working on th
 
 ## Linting
 
-*   **Markdown:** Markdown files are automatically linted and fixed using `markdownlint` with a `pre-commit` hook managed by `husky`. I should still manually run `npx markdownlint --fix .` after making changes to markdown files to ensure they are clean.
+* **Markdown:** Markdown files are automatically linted and fixed using `markdownlint` with a `pre-commit` hook managed by `husky`. I should still manually run `npx markdownlint --fix .` after making changes to markdown files to ensure they are clean.
 
 ## Branching Strategy
 
-*   **Format:** Branch names must follow the conventional commit format, for example: `feat/new-feature`, `fix/bug-fix`, `docs/update-readme`.
-*   **Validation:** A `pre-push` hook is in place to enforce this format.
+* **Format:** Branch names must follow the conventional commit format, for example: `feat/new-feature`, `fix/bug-fix`, `docs/update-readme`.
+* **Validation:** A `pre-push` hook is in place to enforce this format.
 
 ## Commits
 
