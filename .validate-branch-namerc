@@ -1,0 +1,4 @@
+{
+  "pattern": "^(main|develop){1}$|^(feat|fix|docs|style|refactor|perf|test|chore)\/[a-z0-9._-]+$",
+  "errorMsg": "Branch name does not adhere to the conventional commit format. Please use a name like 'feat/new-feature' or 'fix/bug-fix'."
+}
