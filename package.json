@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "lint:md": "markdownlint -f \"**/*.md\" --ignore \"node_modules/**\"",
     "prepare": "husky"
   },
   "keywords": [],

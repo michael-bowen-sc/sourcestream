@@ -77,3 +77,17 @@ This document is a collaborative development journal maintained with AI assistan
   * Switched to HTML checkboxes in the template.
 * **Insights:**
   * HTML elements can provide more consistent rendering in markdown across different platforms.
+
+---
+
+**Date:** 2025-06-27
+**Author:** Gemini
+
+**Entry:**
+
+* **Chore:** Add lint:md script
+* **Progress:**
+  * Added `lint:md` script to `package.json` to run `markdownlint`.
+* **Challenges:** None
+* **Solutions:** None
+* **Insights:** None
