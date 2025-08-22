@@ -9,8 +9,11 @@
   ],
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "prepare": "husky install",
-    "generate:ai-context": "node scripts/generate-ai-learning-context.js"
+    "prepare": "husky",
+    "generate:ai-context": "node scripts/generate-ai-learning-context.js",
+    "lint:md": "markdownlint --config .markdownlint.json --ignore node_modules \"**/*.md\"",
+    "lint:md:fix": "markdownlint --fix --config .markdownlint.json --ignore node_modules \"**/*.md\"",
+    "lint:all": "npm run lint:md"
   },
   "keywords": [],
   "author": "",
@@ -20,6 +23,12 @@
     "@commitlint/config-conventional": "^19.8.1",
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
+    "markdownlint-cli": "^0.41.0",
     "prettier": "^3.6.2"
+  },
+  "lint-staged": {
+    "*.md": [
+      "markdownlint --fix --config .markdownlint.json"
+    ]
   }
 }
