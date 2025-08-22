@@ -42,6 +42,34 @@ This document is a collaborative development journal maintained with AI assistan
 
 **Entry:**
 
+*   **Feature:** Local Development Environment Enhancement
+*   **Progress:**
+    *   Enhanced .env.example with working default values for local development
+    *   Updated database user from generic 'postgres' to 'sourcestream_user'
+    *   Aligned environment variable names with backend code (SERVER_PORT, GATEWAY_PORT)
+    *   Added comprehensive README.md setup instructions with prerequisites
+    *   Included alternative protobuf generation commands for systems without make
+    *   Added verification steps for database, backend, and frontend components
+*   **Challenges:**
+    *   Ensuring .env.example provides working defaults without manual configuration
+    *   Coordinating environment variable names between documentation and code
+    *   Providing complete setup instructions for different development environments
+*   **Solutions:**
+    *   Used consistent naming convention across all configuration files
+    *   Provided both automated (make) and manual (protoc) setup options
+    *   Added step-by-step verification commands for each component
+*   **Insights:**
+    *   Working default configurations significantly reduce developer onboarding friction
+    *   Comprehensive documentation prevents setup issues and reduces support overhead
+    *   Alternative setup paths accommodate different development environments and tooling
+
+---
+
+**Date:** 2025-08-22
+**Author:** Cascade
+
+**Entry:**
+
 *   **Feature:** Protobuf Reorganization and gRPC-Web Enhancement
 *   **Progress:**
     *   Reorganized protobuf generated files from `apps/backend/proto/` to `apps/backend/pb/` following Go conventions
