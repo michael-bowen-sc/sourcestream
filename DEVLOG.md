@@ -5,6 +5,33 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
+**Date:** 2025-08-22
+**Author:** Cascade
+
+**Entry:**
+
+*   **Feature:** Protobuf Reorganization and gRPC-Web Enhancement
+*   **Progress:**
+    *   Reorganized protobuf generated files from `apps/backend/proto/` to `apps/backend/pb/` following Go conventions
+    *   Added proper TypeScript type definitions for ContributorInfo in React frontend
+    *   Switched gRPC-Web client from 'text' to 'binary' format for better performance
+    *   Added missing dependencies: `google-protobuf` and `grpc-web` to package.json
+    *   Enhanced development tooling with husky scripts and AI context generation
+    *   Added comprehensive AI collaboration documentation and GitHub templates
+*   **Challenges:**
+    *   Coordinating protobuf file location changes across backend and frontend
+    *   Ensuring TypeScript type safety with gRPC-Web generated code
+*   **Solutions:**
+    *   Moved generated files to conventional `pb/` directory structure
+    *   Added explicit TypeScript interfaces for better type checking
+    *   Updated import paths consistently across all affected files
+*   **Insights:**
+    *   Following Go conventions for protobuf organization improves maintainability
+    *   Binary format for gRPC-Web provides better performance than text format
+    *   Proper TypeScript typing prevents runtime errors in React components
+
+---
+
 **Date:** 2025-08-07
 **Author:** GitHub Copilot
 
