@@ -2,9 +2,16 @@
 
 This document is a collaborative development journal maintained with AI assistance to track progress, challenges, solutions, and insights throughout the SourceStream project lifecycle.
 
+## Entry Format Guidelines
+
+- **Ordering**: Most recent entries first (reverse chronological order)
+- **Timestamp**: Use format `**Date:** YYYY-MM-DD HH:MM` (24-hour format)
+- **Structure**: Feature/Progress/Challenges/Solutions/Insights format
+- **Author**: Include AI assistant name or human contributor
+
 ---
 
-**Date:** 2025-08-22
+**Date:** 2025-08-22 15:55
 **Author:** Cascade
 
 **Entry:**
@@ -37,7 +44,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-08-22
+**Date:** 2025-08-22 15:52
 **Author:** Cascade
 
 **Entry:**
@@ -65,7 +72,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-08-22
+**Date:** 2025-08-22 14:30
 **Author:** Cascade
 
 **Entry:**
@@ -92,7 +99,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-08-07
+**Date:** 2025-08-07 10:00
 **Author:** GitHub Copilot
 
 **Entry:**
@@ -117,13 +124,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-# SourceStream Development Log
-
-This document is a collaborative development journal maintained with AI assistance to track progress, challenges, solutions, and insights throughout the SourceStream project lifecycle.
-
----
-
-**Date:** 2025-06-27
+**Date:** 2025-06-27 16:00
 **Author:** Gemini
 
 **Entry:**
@@ -143,7 +144,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-06-27
+**Date:** 2025-06-27 15:30
 **Author:** Gemini
 
 **Entry:**
@@ -160,7 +161,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-06-27
+**Date:** 2025-06-27 15:00
 **Author:** Gemini
 
 **Entry:**
@@ -182,7 +183,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-06-27
+**Date:** 2025-06-27 14:30
 **Author:** Gemini
 
 **Entry:**
@@ -199,7 +200,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-06-27
+**Date:** 2025-06-27 14:00
 **Author:** Gemini
 
 **Entry:**
@@ -213,7 +214,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-06-27
+**Date:** 2025-06-27 12:00
 **Author:** Gemini
 
 **Entry:**
@@ -249,25 +250,7 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
-**Date:** 2025-06-27
-**Author:** Gemini
-
-**Entry:**
-
-*   **Fix:** Frontend Protobuf Import Paths
-*   **Progress:**
-    *   Corrected import paths for generated protobuf files in `apps/frontend/src/App.tsx`.
-    *   Updated client instantiation to use `UserServiceClient`.
-*   **Challenges:**
-    *   Incorrect import paths for generated protobuf files.
-*   **Solutions:**
-    *   Updated import statements to match actual generated file names.
-*   **Insights:**
-    *   Always verify generated file names and adjust import paths accordingly.
-
----
-
-**Date:** 2025-06-27
+**Date:** 2025-06-27 11:30
 **Author:** Gemini
 
 **Entry:**
