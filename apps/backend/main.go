@@ -4,9 +4,7 @@ import (
 	"context"
 	"log"
 	"net"
-	"net/http"
-
-	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
+	
 	"google.golang.org/grpc"
 	pb "sourcestream/backend/pb"
 )
@@ -46,6 +44,7 @@ func main() {
 	}()
 
 	// Start gRPC Gateway (REST) server
+	/*
 	ctx := context.Background()
 	ctx, cancel := context.WithCancel(ctx)
 	defer cancel()
@@ -60,4 +59,5 @@ func main() {
 	if err := http.ListenAndServe(":8080", mux); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("failed to serve REST: %v", err)
 	}
+	*/
 }

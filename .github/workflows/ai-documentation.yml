@@ -1,0 +1,154 @@
+name: AI Documentation Maintenance
+
+on:
+  push:
+    branches:
+      - '**'  # Run on all branches
+    paths-ignore:
+      - 'docs/ai-patterns/**'  # We handle these specifically below
+      - 'docs/AI-PAIRING.md'
+      - 'GEMINI.md'
+      - 'DEVLOG.md'
+  pull_request:
+    types: [opened, synchronize, reopened]
+  schedule:
+    - cron: '0 0 * * 1'  # Weekly on Monday
+
+jobs:
+  validate-ai-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Check for broken links
+        run: |
+          echo "Checking for broken links in AI documentation"
+          # Add your link checking logic here
+      
+      - name: Validate markdown formatting
+        run: |
+          npm install -g markdownlint-cli
+          markdownlint docs/ai-patterns/ docs/AI-PAIRING.md GEMINI.md
+      
+      - name: Check for outdated references
+        run: |
+          echo "Checking for outdated references to project structure"
+          # Add script to detect references to files that may have moved
+          
+  enforce-documentation:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'pull_request'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+          
+      - name: Check for DEVLOG updates
+        id: check_devlog
+        run: |
+          git diff --name-only ${{ github.event.pull_request.base.sha }} ${{ github.event.pull_request.head.sha }} | grep -q "DEVLOG.md" || echo "::set-output name=missing_devlog::true"
+      
+      - name: Notify about missing DEVLOG update
+        if: steps.check_devlog.outputs.missing_devlog == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **Documentation Check Failed**: This PR does not include an update to the DEVLOG.md file. Please add an entry following the AI-Pairing guidelines.'
+            })
+            
+      - name: Analyze commit messages
+        id: commit_analysis
+        run: |
+          COMMITS=$(git log ${{ github.event.pull_request.base.sha }}..${{ github.event.pull_request.head.sha }} --pretty=format:"%s")
+          if echo "$COMMITS" | grep -qiE "feat|fix|chore|docs|style|refactor|perf|test|build|ci|revert"; then
+            echo "Conventional commits detected"
+          else
+            echo "::set-output name=bad_commits::true"
+          fi
+          
+      - name: Notify about non-conventional commits
+        if: steps.commit_analysis.outputs.bad_commits == 'true'
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{secrets.GITHUB_TOKEN}}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **Commit Format Check Failed**: Some commits do not follow the Conventional Commits format. Please update your commit messages to follow the established pattern.'
+            })
+          
+  summarize-ai-interactions:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      
+      - name: Generate AI interaction summary
+        run: |
+          echo "This would analyze commit messages and PR descriptions to summarize AI contributions"
+          # This could be implemented with custom scripts to analyze Git history
+          
+      - name: Update interaction patterns document
+        if: github.event_name == 'schedule'
+        run: |
+          echo "This would update the interaction patterns document based on recent activity"
+          # This would be a script to update patterns documentation based on recent history
+          
+  update-learning-context:
+    runs-on: ubuntu-latest
+    if: github.event_name == 'schedule'
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      
+      - name: Extract successful patterns
+        run: |
+          mkdir -p .tmp/learning
+          # This would extract patterns from recent PRs and commits
+          # Example implementation would analyze PR descriptions and comments
+          # for mentions of AI assistance and extract the patterns used
+          
+      - name: Update pattern effectiveness metrics
+        run: |
+          echo "Analyzing which patterns led to successful outcomes"
+          # This would update metrics on which patterns were most effective
+          
+      - name: Generate learning report
+        run: |
+          echo "Generating learning report"
+          cat > .tmp/learning/report.md << EOL
+          # AI-Human Collaboration Learning Report
+          
+          ## Most Effective Patterns (Last 30 Days)
+          
+          1. TBD - Would be generated from actual usage data
+          2. TBD - Would be generated from actual usage data
+          3. TBD - Would be generated from actual usage data
+          
+          ## Areas for Improvement
+          
+          TBD - Would be generated from actual usage data
+          
+          ## New Pattern Suggestions
+          
+          TBD - Would be generated from actual usage data
+          EOL
+          
+      - name: Create or update learning report PR
+        uses: peter-evans/create-pull-request@v4
+        with:
+          commit-message: "docs: Update AI collaboration learning report"
+          title: "docs: Monthly AI collaboration learning report"
+          body: |
+            This PR contains the monthly update to our AI collaboration learning report.
+            
+            It identifies effective patterns, areas for improvement, and suggestions for new patterns based on recent project activity.
+          branch: ai-learning-report
+          base: main

@@ -1,0 +1,18 @@
+# CODEOWNERS file for SourceStream
+# This file helps define code ownership and review responsibilities
+
+# Default owners for everything
+* @michael-bowen-sc
+
+# Backend ownership
+/apps/backend/ @backend-team-members
+
+# Frontend ownership
+/apps/frontend/ @frontend-team-members
+
+# Documentation
+/docs/ @michael-bowen-sc
+*.md @michael-bowen-sc
+
+# AI-specific documentation
+/docs/ai-patterns/ @michael-bowen-sc

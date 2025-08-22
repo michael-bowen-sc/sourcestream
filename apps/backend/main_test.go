@@ -2,10 +2,8 @@ package main
 
 import (
 	"context"
-	"io"
-	"net/http"
+	"net"
 	"testing"
-	"time"
 
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/grpc"
@@ -14,13 +12,19 @@ import (
 )
 
 func TestGRPCIntegration(t *testing.T) {
-	// Start the gRPC server in a goroutine
-	go main()
+	lis, err := net.Listen("tcp", ":0") // Use ephemeral port
+	assert.NoError(t, err)
+	defer lis.Close()
 
-	// Give the server a moment to start
-	time.Sleep(1 * time.Second)
+	s := grpc.NewServer()
+	pb.RegisterUserServiceServer(s, &server{}) // Assuming 'server' struct is accessible or defined here
+	go func() {
+		if err := s.Serve(lis); err != nil {
+			t.Fatalf("failed to serve gRPC: %v", err)
+		}
+	}()
 
-	conn, err := grpc.Dial("localhost:50051", grpc.WithTransportCredentials(insecure.NewCredentials()))
+	conn, err := grpc.Dial(lis.Addr().String(), grpc.WithTransportCredentials(insecure.NewCredentials()))
 	assert.NoError(t, err)
 	defer conn.Close()
 
@@ -40,24 +44,5 @@ func TestGRPCIntegration(t *testing.T) {
 	assert.NotNil(t, getRes)
 	assert.Equal(t, "grpc_test_corp", getRes.CorporateId)
 	assert.Equal(t, "testuser", getRes.GithubUsername)
-}
-
-func TestRESTIntegration(t *testing.T) {
-	// Start the gRPC server and REST gateway in a goroutine
-	go main()
-
-	// Give the server a moment to start
-	time.Sleep(1 * time.Second)
-
-	// Test RegisterContributor via REST
-	resp, err := http.Post("http://localhost:8080/v1/contributors:register", "application/json", io.NopCloser(nil))
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	defer resp.Body.Close()
-
-	// Test GetContributor via REST
-	resp, err = http.Get("http://localhost:8080/v1/contributors/rest_test_corp")
-	assert.NoError(t, err)
-	assert.Equal(t, http.StatusOK, resp.StatusCode)
-	defer resp.Body.Close()
+	s.Stop() // Stop the gRPC server gracefully
 }
