@@ -11,6 +11,39 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
+**Date:** 2025-08-22 16:14
+**Author:** Cascade
+
+**Entry:**
+
+*   **Feature:** AI-PAIRING Documentation Enhancement with Git Workflow Guidelines
+*   **Progress:**
+    *   Added Context Awareness as 5th core principle for AI agents
+    *   Created Pre-Work Context Check section with mandatory git status verification
+    *   Added comprehensive Git Workflow Best Practices section
+    *   Implemented Handling Dirty Working Directory with safety protocols
+    *   Added branch management conventions and commit guidelines
+    *   Included safety measures for handling uncommitted changes
+    *   Removed deprecated GEMINI.md and added AGENT.md for consistency
+    *   Created docs branch following project conventions: docs/ai-pairing-git-workflow-guidelines
+    *   Raised PR #6 with comprehensive documentation enhancements
+*   **Challenges:**
+    *   Ensuring AI agents follow proper git workflow before starting work
+    *   Defining safe protocols for handling dirty working directories
+    *   Balancing safety with productivity in git operations
+*   **Solutions:**
+    *   Created mandatory Step 0 for context checking before any work
+    *   Defined context-based actions for different types of uncommitted changes
+    *   Implemented safety-first approach with user confirmation requirements
+    *   Added specific git commands and explanations for each scenario
+*   **Insights:**
+    *   Proper git context checking prevents conflicts and ensures work is done on correct branches
+    *   Safety protocols for dirty branches prevent accidental data loss
+    *   Comprehensive documentation reduces onboarding friction for AI-human collaboration
+    *   Following project conventions for branch naming ensures consistency
+
+---
+
 **Date:** 2025-08-22 15:55
 **Author:** Cascade
 
