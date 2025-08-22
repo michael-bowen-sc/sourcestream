@@ -1,0 +1,189 @@
+syntax = "proto3";
+
+package backend;
+
+option go_package = "sourcestream/backend/pb";
+
+// User management service
+service UserService {
+  rpc RegisterContributor (RegisterContributorRequest) returns (RegisterContributorResponse);
+  rpc GetContributor (GetContributorRequest) returns (GetContributorResponse);
+  rpc GetUserProfile (GetUserProfileRequest) returns (GetUserProfileResponse);
+}
+
+// Project management service
+service ProjectService {
+  rpc GetAuthoredProjects (GetAuthoredProjectsRequest) returns (GetAuthoredProjectsResponse);
+  rpc GetContributedProjects (GetContributedProjectsRequest) returns (GetContributedProjectsResponse);
+  rpc GetApprovedProjects (GetApprovedProjectsRequest) returns (GetApprovedProjectsResponse);
+  rpc CreateProject (CreateProjectRequest) returns (CreateProjectResponse);
+}
+
+// Request management service
+service RequestService {
+  rpc SubmitProjectRequest (SubmitProjectRequestRequest) returns (SubmitProjectRequestResponse);
+  rpc SubmitPullRequestApproval (SubmitPullRequestApprovalRequest) returns (SubmitPullRequestApprovalResponse);
+  rpc SubmitAccessRequest (SubmitAccessRequestRequest) returns (SubmitAccessRequestResponse);
+  rpc GetRequests (GetRequestsRequest) returns (GetRequestsResponse);
+}
+
+// Common types
+message Project {
+  string id = 1;
+  string name = 2;
+  string description = 3;
+  string status = 4; // active, pending, approved, archived
+  string last_activity = 5;
+  string url = 6;
+  string license = 7;
+  string owner_id = 8;
+}
+
+message User {
+  string corporate_id = 1;
+  string github_username = 2;
+  string name = 3;
+  string department = 4;
+  string email = 5;
+}
+
+message Request {
+  string id = 1;
+  string type = 2; // project, pullrequest, access
+  string title = 3;
+  string description = 4;
+  string status = 5; // pending, approved, rejected
+  string requester_id = 6;
+  string created_at = 7;
+  string project_name = 8;
+  string project_url = 9;
+  string license = 10;
+  string role = 11;
+}
+
+// User Service Messages
+message RegisterContributorRequest {
+  string corporate_id = 1;
+  string github_username = 2;
+}
+
+message RegisterContributorResponse {
+  string message = 1;
+}
+
+message GetContributorRequest {
+  string corporate_id = 1;
+}
+
+message GetContributorResponse {
+  string corporate_id = 1;
+  string github_username = 2;
+  repeated string approved_projects = 3;
+}
+
+message GetUserProfileRequest {
+  string corporate_id = 1;
+}
+
+message GetUserProfileResponse {
+  User user = 1;
+}
+
+// Project Service Messages
+message GetAuthoredProjectsRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message GetAuthoredProjectsResponse {
+  repeated Project projects = 1;
+  int32 total = 2;
+}
+
+message GetContributedProjectsRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message GetContributedProjectsResponse {
+  repeated Project projects = 1;
+  int32 total = 2;
+}
+
+message GetApprovedProjectsRequest {
+  string user_id = 1;
+  int32 page = 2;
+  int32 limit = 3;
+}
+
+message GetApprovedProjectsResponse {
+  repeated Project projects = 1;
+  int32 total = 2;
+}
+
+message CreateProjectRequest {
+  string name = 1;
+  string description = 2;
+  string url = 3;
+  string license = 4;
+  string owner_id = 5;
+}
+
+message CreateProjectResponse {
+  Project project = 1;
+  string message = 2;
+}
+
+// Request Service Messages
+message SubmitProjectRequestRequest {
+  string title = 1;
+  string description = 2;
+  string project_url = 3;
+  string license = 4;
+  string requester_id = 5;
+}
+
+message SubmitProjectRequestResponse {
+  string request_id = 1;
+  string message = 2;
+}
+
+message SubmitPullRequestApprovalRequest {
+  string title = 1;
+  string description = 2;
+  string project_name = 3;
+  string pr_url = 4;
+  string requester_id = 5;
+}
+
+message SubmitPullRequestApprovalResponse {
+  string request_id = 1;
+  string message = 2;
+}
+
+message SubmitAccessRequestRequest {
+  string title = 1;
+  string description = 2;
+  string project_name = 3;
+  string role = 4;
+  string requester_id = 5;
+}
+
+message SubmitAccessRequestResponse {
+  string request_id = 1;
+  string message = 2;
+}
+
+message GetRequestsRequest {
+  string user_id = 1;
+  string status = 2; // optional filter
+  int32 page = 3;
+  int32 limit = 4;
+}
+
+message GetRequestsResponse {
+  repeated Request requests = 1;
+  int32 total = 2;
+}
