@@ -1,95 +1,160 @@
-import React, { useState } from 'react';
-import { Button, Card, Input, Space, Typography } from 'antd';
-import { UserServiceClient } from "./pb/User_serviceServiceClientPb.ts";
-import { RegisterContributorRequest, GetContributorRequest } from './pb/user_service_pb';
+import React, { useState, useEffect } from 'react';
+import { Layout, Typography, Row, Col, Avatar, notification } from 'antd';
+import { UserOutlined, ProjectOutlined, TeamOutlined, CheckCircleOutlined } from '@ant-design/icons';
+import DashboardWidget from './components/DashboardWidget';
+import PendingRequestsCard from './components/PendingRequestsCard';
+import RequestToolbar from './components/RequestToolbar';
+import { 
+  type Project, 
+  type User, 
+  type Request,
+  mockUser, 
+  mockAuthoredProjects, 
+  mockContributedProjects, 
+  mockApprovedProjects,
+  mockPendingRequests
+} from './data/mockData';
 
+const { Header, Content } = Layout;
 const { Title, Text } = Typography;
 
-const client = new UserServiceClient('http://localhost:8080'); // gRPC-web gateway address
-
 function App() {
-  const [corporateId, setCorporateId] = useState('');
-  const [githubUsername, setGithubUsername] = useState('');
-  const [registrationMessage, setRegistrationMessage] = useState('');
-  type ContributorInfo = {
-    corporateId: string;
-    githubUsername: string;
-    approvedProjects: string[];
-  };
-  const [contributorInfo, setContributorInfo] = useState<ContributorInfo | null>(null);
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
+  const [authoredProjects, setAuthoredProjects] = useState<Project[]>([]);
+  const [contributedProjects, setContributedProjects] = useState<Project[]>([]);
+  const [approvedProjects, setApprovedProjects] = useState<Project[]>([]);
+  const [pendingRequests, setPendingRequests] = useState<Request[]>([]);
 
-  const handleRegister = async () => {
-    const request = new RegisterContributorRequest();
-    request.setCorporateId(corporateId);
-    request.setGithubUsername(githubUsername);
-
-    try {
-      const response = await client.registerContributor(request, {});
-      setRegistrationMessage(response.getMessage());
-    } catch (error) {
-      console.error('Error registering contributor:', error);
-      setRegistrationMessage('Error registering contributor.');
+  useEffect(() => {
+    // Check if we're in development mode and no real data exists
+    const isDev = import.meta.env.DEV;
+    const hasRealData = false; // This would be replaced with actual API check
+    
+    if (isDev && !hasRealData) {
+      // Load mock data only in development when no real state exists
+      setCurrentUser(mockUser);
+      setAuthoredProjects(mockAuthoredProjects);
+      setContributedProjects(mockContributedProjects);
+      setApprovedProjects(mockApprovedProjects);
+      setPendingRequests(mockPendingRequests);
+    } else {
+      // In production or when real data exists, load from API
+      // TODO: Replace with actual API calls
+      // loadUserData();
+      // loadProjectsData();
     }
+  }, []);
+
+  const handleActionSubmit = (data: any) => {
+    // Add new request to pending requests state
+    const newRequest = {
+      id: `req-${Date.now()}`,
+      type: data.type,
+      title: data.title,
+      description: data.description,
+      status: 'pending' as const,
+      projectName: data.projectName,
+      createdAt: new Date().toISOString(),
+    };
+    
+    setPendingRequests(prev => [newRequest, ...prev]);
+    
+    notification.success({
+      message: 'Request Submitted',
+      description: `Your ${data.type} request "${data.title}" has been submitted for review.`,
+      placement: 'topRight',
+    });
   };
 
-  const handleGetContributor = async () => {
-    const request = new GetContributorRequest();
-    request.setCorporateId(corporateId);
-
-    try {
-      const response = await client.getContributor(request, {});
-      setContributorInfo({
-        corporateId: response.getCorporateId(),
-        githubUsername: response.getGithubUsername(),
-        approvedProjects: response.getApprovedProjectsList(),
-      });
-    } catch (error) {
-      console.error('Error getting contributor:', error);
-      setContributorInfo(null);
-    }
-  };
+  // Show loading state if no user data is available yet
+  if (!currentUser) {
+    return (
+      <Layout className="min-h-screen bg-gray-50">
+        <Header className="bg-white shadow-sm border-b">
+          <div className="flex items-center justify-between h-full max-w-7xl mx-auto px-4">
+            <Title level={3} className="mb-0 text-black">Sourcestream</Title>
+          </div>
+        </Header>
+        <Content className="max-w-7xl mx-auto w-full px-5 py-6">
+          <div className="flex items-center justify-center h-64">
+            <Text>Loading...</Text>
+          </div>
+        </Content>
+      </Layout>
+    );
+  }
 
   return (
-    <div style={{ padding: '20px' }}>
-      <Title level={2}>SourceStream Contributor Management</Title>
-
-      <Space direction="vertical" size="large" style={{ width: '100%' }}>
-        <Card title="Register Contributor">
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Input
-              placeholder="Corporate ID"
-              value={corporateId}
-              onChange={(e) => setCorporateId(e.target.value)}
-            />
-            <Input
-              placeholder="GitHub Username"
-              value={githubUsername}
-              onChange={(e) => setGithubUsername(e.target.value)}
-            />
-            <Button type="primary" onClick={handleRegister}>Register</Button>
-            {registrationMessage && <Text type="success">{registrationMessage}</Text>}
-          </Space>
-        </Card>
-
-        <Card title="Get Contributor Info">
-          <Space direction="vertical" style={{ width: '100%' }}>
-            <Input
-              placeholder="Corporate ID"
-              value={corporateId}
-              onChange={(e) => setCorporateId(e.target.value)}
-            />
-            <Button onClick={handleGetContributor}>Get Info</Button>
-            {contributorInfo && (
-              <div>
-                <Text>Corporate ID: {contributorInfo.corporateId}</Text><br/>
-                <Text>GitHub Username: {contributorInfo.githubUsername}</Text><br/>
-                <Text>Approved Projects: {contributorInfo.approvedProjects.join(', ')}</Text>
+    <Layout className="min-h-screen bg-gray-50">
+      <Header className="!bg-white shadow-sm border-b" style={{ backgroundColor: 'white' }}>
+        <div className="flex items-center justify-between h-full max-w-7xl mx-auto px-4">
+          <Title level={3} className="mb-0 text-black">Sourcestream</Title>
+          <div className="flex items-center gap-6">
+            <RequestToolbar onSubmit={handleActionSubmit} />
+            <div className="flex items-center gap-4">
+              <div className="text-right">
+                <Text strong className="block">{currentUser.name}</Text>
+                <Text type="secondary" className="text-sm">{currentUser.department}</Text>
               </div>
-            )}
-          </Space>
-        </Card>
-      </Space>
-    </div>
+              <Avatar size="large" icon={<UserOutlined />} className="bg-blue-500" />
+            </div>
+          </div>
+        </div>
+      </Header>
+
+      <Content className="max-w-7xl mx-auto w-full px-5 py-6">
+        {/* Welcome Section */}
+        <div className="mb-8">
+          <Title level={2} className="mb-2">Welcome back, {currentUser.name}!</Title>
+          <Text type="secondary" className="text-lg">
+            Manage your open source contributions and project approvals
+          </Text>
+        </div>
+
+        {/* Dashboard Widgets - Top 1/3 */}
+        <div className="mb-8">
+          <Title level={3} className="mb-6">Your Dashboard</Title>
+          <Row gutter={[24, 24]} className="mb-4">
+            <Col xs={24} lg={6}>
+              <div className="px-2">
+                <DashboardWidget
+                  title="Projects Authored"
+                  icon={<ProjectOutlined className="text-green-600" />}
+                  projects={authoredProjects}
+                  type="authored"
+                />
+              </div>
+            </Col>
+            <Col xs={24} lg={6}>
+              <div className="px-2">
+                <DashboardWidget
+                  title="Contributed To"
+                  icon={<TeamOutlined className="text-blue-600" />}
+                  projects={contributedProjects}
+                  type="contributed"
+                />
+              </div>
+            </Col>
+            <Col xs={24} lg={6}>
+              <div className="px-2">
+                <DashboardWidget
+                  title="Approved Access"
+                  icon={<CheckCircleOutlined className="text-purple-600" />}
+                  projects={approvedProjects}
+                  type="approved"
+                />
+              </div>
+            </Col>
+            <Col xs={24} lg={6}>
+              <div className="px-2">
+                <PendingRequestsCard requests={pendingRequests} />
+              </div>
+            </Col>
+          </Row>
+        </div>
+
+      </Content>
+    </Layout>
   );
 }
 

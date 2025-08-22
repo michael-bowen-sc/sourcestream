@@ -1,7 +1,39 @@
-```markdown
 # SourceStream Development Log
 
 This document is a collaborative development journal maintained with AI assistance to track progress, challenges, solutions, and insights throughout the SourceStream project lifecycle.
+
+---
+
+**Date:** 2025-08-22
+**Author:** Cascade
+
+**Entry:**
+
+*   **Feature:** Dashboard UI Enhancements and Request Management System
+*   **Progress:**
+    *   Moved action cards from dashboard to header toolbar with modal popups
+    *   Implemented comprehensive modal system with form validation and state management
+    *   Added browser navigation blocking and unsaved changes warnings
+    *   Created pagination system for all dashboard cards (max 4 visible rows)
+    *   Implemented consistent card heights across dashboard widgets
+    *   Added pending requests card to dashboard showing user's open requests
+    *   Enhanced backend RequestService with database integration
+    *   Added GetRequestsByUser repository method for user-specific request retrieval
+*   **Challenges:**
+    *   Ensuring consistent card heights regardless of content or pagination state
+    *   Implementing proper state management for modal forms
+    *   Preventing data loss during browser navigation
+    *   Maintaining visual consistency across dashboard components
+*   **Solutions:**
+    *   Used fixed height (h-96) with flexbox layout for all dashboard cards
+    *   Implemented beforeunload and popstate event handlers for navigation blocking
+    *   Created reusable RequestModal component with type-specific forms
+    *   Added reserved space for pagination controls even when not needed
+*   **Insights:**
+    *   Modal-based forms provide better UX than inline cards for complex interactions
+    *   Consistent component sizing requires explicit height management in CSS
+    *   Browser navigation protection is essential for forms with user input
+    *   Pagination improves performance and visual clarity for data-heavy components
 
 ---
 

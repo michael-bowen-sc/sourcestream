@@ -3,23 +3,28 @@ FROM golang:1.22-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum ./apps/backend/
-WORKDIR /app/apps/backend
+# Copy go mod files
+COPY go.mod go.sum ./
 RUN go mod download
 
+# Copy source code
 COPY . .
 
-WORKDIR /app/apps/backend
-RUN go build -o /usr/local/bin/backend .
+# Build the application
+RUN CGO_ENABLED=0 GOOS=linux go build -a -installsuffix cgo -o backend .
 
-FROM alpine/git as certs
-RUN apk add --no-cache ca-certificates
+# Final stage
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates tzdata
+WORKDIR /root/
 
-FROM scratch
-COPY --from=builder /usr/local/bin/backend /usr/local/bin/backend
-COPY --from=certs /etc/ssl/certs/ca-certificates.crt /etc/ssl/certs/
+# Copy the binary from builder
+COPY --from=builder /app/backend .
+
+# Copy migration files
+COPY --from=builder /app/migrations ./migrations
 
 EXPOSE 50051
 EXPOSE 8080
 
-ENTRYPOINT ["/usr/local/bin/backend"]
+CMD ["./backend"]
