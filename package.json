@@ -13,7 +13,16 @@
     "generate:ai-context": "node scripts/generate-ai-learning-context.js",
     "lint:md": "markdownlint --config .markdownlint.json --ignore node_modules \"**/*.md\"",
     "lint:md:fix": "markdownlint --fix --config .markdownlint.json --ignore node_modules \"**/*.md\"",
-    "lint:all": "npm run lint:md"
+    "lint:go": "cd apps/backend && golangci-lint run",
+    "lint:go:fix": "cd apps/backend && golangci-lint run --fix",
+    "lint:ts": "cd apps/frontend && npm run lint",
+    "lint:ts:fix": "cd apps/frontend && npm run lint -- --fix",
+    "lint:css": "stylelint \"apps/frontend/src/**/*.css\"",
+    "lint:css:fix": "stylelint \"apps/frontend/src/**/*.css\" --fix",
+    "format": "prettier --write \"**/*.{js,jsx,ts,tsx,json,css,md}\" --ignore-path .prettierignore",
+    "format:check": "prettier --check \"**/*.{js,jsx,ts,tsx,json,css,md}\" --ignore-path .prettierignore",
+    "lint:all": "npm run lint:go && npm run lint:ts && npm run lint:css && npm run lint:md",
+    "lint:all:fix": "npm run lint:go:fix && npm run lint:ts:fix && npm run lint:css:fix && npm run lint:md:fix && npm run format"
   },
   "keywords": [],
   "author": "",
@@ -24,11 +33,25 @@
     "husky": "^9.1.7",
     "lint-staged": "^15.5.2",
     "markdownlint-cli": "^0.41.0",
-    "prettier": "^3.6.2"
+    "prettier": "^3.6.2",
+    "stylelint": "^16.23.1",
+    "stylelint-config-standard": "^39.0.0"
   },
   "lint-staged": {
     "*.md": [
-      "markdownlint --fix --config .markdownlint.json"
+      "markdownlint --fix --config .markdownlint.json --ignore node_modules"
+    ],
+    "apps/backend/**/*.go": [
+      "cd apps/backend && golangci-lint run --fix"
+    ],
+    "apps/frontend/**/*.{ts,tsx}": [
+      "cd apps/frontend && npm run lint -- --fix"
+    ],
+    "apps/frontend/**/*.css": [
+      "stylelint --fix"
+    ],
+    "**/*.{js,jsx,ts,tsx,json,css,md}": [
+      "prettier --write --ignore-path .prettierignore"
     ]
   }
 }
