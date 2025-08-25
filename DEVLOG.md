@@ -11,6 +11,37 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
+**Date:** 2025-08-25 12:27
+**Author:** Cascade
+
+**Entry:**
+
+- **Feature:** Node.js version upgrade and nvm integration
+- **Progress:**
+  - Added `.nvmrc` file with Node.js v20.19.4 (latest LTS)
+  - Updated `package.json` engines field to require Node.js >=20.19.4
+  - Enhanced README.md with nvm installation and usage instructions
+  - Successfully upgraded from Node.js v20.16.0 to v20.19.4
+  - Tested comprehensive linting setup with new Node.js version
+  - Resolved previous Vite engine compatibility warnings
+  - Set Node.js v20.19.4 as default nvm version
+- **Challenges:**
+  - Initial attempt to use Node.js v20.20.0 which doesn't exist yet
+  - nvm not properly sourced in current shell session
+  - Need to ensure all team members use consistent Node.js version
+- **Solutions:**
+  - Researched available LTS versions and selected v20.19.4 (latest available)
+  - Added proper nvm sourcing commands for installation and usage
+  - Updated all documentation to include nvm setup instructions
+  - Added engines field to package.json for version enforcement
+- **Insights:**
+  - nvm provides excellent Node.js version management for monorepos
+  - .nvmrc file ensures consistent Node.js versions across team
+  - Engine requirements in package.json help catch version mismatches early
+  - Node.js LTS versions provide stability for production environments
+
+---
+
 **Date:** 2025-08-25 10:21
 **Author:** Cascade
 
