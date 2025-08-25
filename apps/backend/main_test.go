@@ -9,15 +9,25 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials/insecure"
 	pb "sourcestream/backend/pb"
+	"sourcestream/backend/config"
+	"sourcestream/backend/services"
 )
 
 func TestGRPCIntegration(t *testing.T) {
+	// Initialize test database connection
+	db, err := config.NewDatabase()
+	assert.NoError(t, err)
+	defer db.Close()
+
+	// Create service instance
+	userService := services.NewUserService(db)
+
 	lis, err := net.Listen("tcp", ":0") // Use ephemeral port
 	assert.NoError(t, err)
 	defer lis.Close()
 
 	s := grpc.NewServer()
-	pb.RegisterUserServiceServer(s, &server{}) // Assuming 'server' struct is accessible or defined here
+	pb.RegisterUserServiceServer(s, userService)
 	go func() {
 		if err := s.Serve(lis); err != nil {
 			t.Fatalf("failed to serve gRPC: %v", err)
@@ -43,6 +53,6 @@ func TestGRPCIntegration(t *testing.T) {
 	assert.NoError(t, err)
 	assert.NotNil(t, getRes)
 	assert.Equal(t, "grpc_test_corp", getRes.CorporateId)
-	assert.Equal(t, "testuser", getRes.GithubUsername)
+	assert.Equal(t, "grpc_test_user", getRes.GithubUsername)
 	s.Stop() // Stop the gRPC server gracefully
 }
