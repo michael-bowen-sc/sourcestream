@@ -1,6 +1,13 @@
+# Check branch protection (prevent direct commits to main)
 current_branch=$(git rev-parse --abbrev-ref HEAD)
 
 if [ "$current_branch" = "main" ]; then
   echo "Direct pushes to 'main' branch are not allowed. Please create a new branch following the conventional commit branching strategy (e.g., 'feat/your-feature-name', 'fix/your-bug-fix')."
   exit 1
 fi
+
+# Run lint-staged to check and fix markdown files
+npx lint-staged
+
+# Run DEVLOG check
+.husky/pre-commit-devlog

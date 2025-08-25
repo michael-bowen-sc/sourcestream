@@ -11,7 +11,6 @@ This document provides guidelines for the Gemini AI to follow when working on th
     *   **Frontend:** React, TypeScript, Tailwind CSS, Ant Design, gRPC-Web, OpenAPI.
 *   **Development Environment:** Tilt for local Kubernetes development and testing.
 
-
 ## Linting
 
 * **Markdown:** Markdown files are automatically linted and fixed using `markdownlint` with a `pre-commit` hook managed by `husky`. I should still manually run `npx markdownlint --fix .` after making changes to markdown files to ensure they are clean.
