@@ -5,10 +5,12 @@ PostgreSQL-based backend service for the SourceStream platform.
 ## Database Setup
 
 ### Prerequisites
+
 - PostgreSQL 12+ installed and running
 - Go 1.19+ installed
 
 ### Environment Variables
+
 Create a `.env` file in the backend directory:
 
 ```bash
@@ -23,11 +25,13 @@ DB_SSLMODE=disable
 ### Database Migration
 
 1. Create the database:
+
 ```sql
 CREATE DATABASE sourcestream;
 ```
 
-2. Run migrations:
+1. Run migrations:
+
 ```bash
 # Connect to PostgreSQL and run the migration files
 psql -h localhost -U postgres -d sourcestream -f migrations/001_initial_schema.sql
@@ -45,12 +49,14 @@ go run main.go
 ```
 
 The server will start:
+
 - gRPC server on `:50051`
 - REST gateway on `:8080`
 
 ## API Endpoints
 
 ### REST Endpoints (via gRPC-Gateway)
+
 - `GET /v1/users/{id}` - Get user profile
 - `POST /v1/users/register` - Register contributor
 - `GET /v1/projects/authored/{user_id}` - Get authored projects
@@ -65,6 +71,7 @@ The server will start:
 ## Database Schema
 
 ### Tables
+
 - `users` - User profiles and authentication
 - `projects` - Open source projects
 - `project_contributors` - Many-to-many user-project relationships
@@ -72,6 +79,7 @@ The server will start:
 - `request_comments` - Comments on requests
 
 ### Key Features
+
 - UUID primary keys
 - Automatic timestamps with triggers
 - Proper indexing for performance
