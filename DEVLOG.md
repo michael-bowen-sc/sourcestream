@@ -11,6 +11,63 @@ This document is a collaborative development journal maintained with AI assistan
 
 ---
 
+**Date:** 2025-08-26 09:47
+**Author:** Cascade
+
+**Entry:**
+
+- **Feature:** Markdown linting fixes across all project documentation
+- **Progress:**
+  - Fixed ordered list numbering issue in `apps/backend/README.md`
+  - Added language specifications to fenced code blocks in `docs/ai-patterns/prompts/examples.md`
+  - Ran comprehensive markdown linting across all project files
+  - Established workflow to automatically run markdown linting for all future markdown operations
+- **Challenges:**
+  - Multiple markdown files had accumulated linting violations over time
+  - Fenced code blocks were missing language specifications
+  - Inconsistent ordered list numbering patterns
+- **Solutions:**
+  - Used `markdownlint --fix` with project configuration to auto-fix issues
+  - Added `text` language specification to prompt example code blocks
+  - Corrected ordered list numbering to follow consistent 1/1/1 pattern
+  - Created memory to ensure markdown linting runs automatically going forward
+- **Insights:**
+  - Regular markdown linting prevents accumulation of style violations
+  - Automated linting should be part of standard workflow for documentation
+  - Consistent documentation formatting improves readability and maintainability
+  - Language specifications on code blocks improve syntax highlighting and clarity
+
+---
+
+**Date:** 2025-08-25 15:19
+**Author:** Cascade
+
+**Entry:**
+
+- **Feature:** Architecture documentation with Mermaid diagrams
+- **Progress:**
+- Created comprehensive `/docs/architecture.md` with visual documentation
+- Added database schema ERD showing all table relationships and constraints
+- Created system architecture diagram with multi-layer component view
+- Added request flow sequence diagram showing API interactions
+- Documented technology stack, design patterns, and scalability features
+- **Challenges:**
+- Needed to analyze existing database schema from migration files
+- Required understanding of service layer architecture and gRPC implementation
+- Complex relationships between users, projects, requests, and contributors
+- **Solutions:**
+- Parsed SQL migration files to extract complete database schema
+- Created detailed Mermaid ERD with proper foreign key relationships
+- Designed layered architecture diagram showing frontend, backend, and data layers
+- Added sequence diagram to illustrate typical request processing flow
+- **Insights:**
+- Visual documentation significantly improves system understanding
+- Mermaid diagrams provide excellent GitHub-native documentation
+- Architecture documentation should include both structural and behavioral views
+- Clear separation of concerns visible in repository and service patterns
+
+---
+
 **Date:** 2025-08-25 14:28
 **Author:** Cascade
 
