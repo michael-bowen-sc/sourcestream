@@ -1,22 +1,43 @@
-import React, { useState, useEffect } from 'react';
-import { Layout, Typography, Row, Col, Avatar, notification } from 'antd';
-import { UserOutlined, ProjectOutlined, TeamOutlined, CheckCircleOutlined } from '@ant-design/icons';
-import DashboardWidget from './components/DashboardWidget';
-import PendingRequestsCard from './components/PendingRequestsCard';
-import RequestToolbar from './components/RequestToolbar';
-import { 
-  type Project, 
-  type User, 
+import { useState, useEffect } from "react";
+import {
+  Box,
+  Grid,
+  GridItem,
+  Flex,
+  IconButton,
+  useDisclosure,
+  VStack,
+  Text,
+  Button,
+  Heading,
+  HStack,
+  Spinner,
+} from "@chakra-ui/react";
+import {
+  FiMenu,
+  FiBell,
+  FiUser,
+  FiUsers,
+  FiPlus,
+  FiGitPullRequest,
+  FiShield,
+} from "react-icons/fi";
+import DashboardWidget from "./components/DashboardWidget";
+import PendingRequestsCard from "./components/PendingRequestsCard";
+import OpenSourceActionModal, {
+  type OpenSourceActionType,
+  type OpenSourceFormData,
+} from "./components/OpenSourceActionModal";
+import {
+  type Project,
+  type User,
   type Request,
-  mockUser, 
-  mockAuthoredProjects, 
-  mockContributedProjects, 
+  mockUser,
+  mockAuthoredProjects,
+  mockContributedProjects,
   mockApprovedProjects,
-  mockPendingRequests
-} from './data/mockData';
-
-const { Header, Content } = Layout;
-const { Title, Text } = Typography;
+  mockPendingRequests,
+} from "./data/mockData";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -24,12 +45,29 @@ function App() {
   const [contributedProjects, setContributedProjects] = useState<Project[]>([]);
   const [approvedProjects, setApprovedProjects] = useState<Project[]>([]);
   const [pendingRequests, setPendingRequests] = useState<Request[]>([]);
+  const [modalOpen, setModalOpen] = useState(false);
+  const [currentActionType, setCurrentActionType] =
+    useState<OpenSourceActionType>("permission");
+  const { onOpen } = useDisclosure();
+
+  const handleOpenSourceAction = (type: OpenSourceActionType) => {
+    setCurrentActionType(type);
+    setModalOpen(true);
+  };
+
+  const handleModalSubmit = async (data: OpenSourceFormData) => {
+    console.log("Submitting form data:", data);
+    // TODO: Connect to actual backend service
+    // For now, simulate API call
+    await new Promise((resolve) => setTimeout(resolve, 1000));
+    console.log("Form submitted successfully");
+  };
 
   useEffect(() => {
     // Check if we're in development mode and no real data exists
     const isDev = import.meta.env.DEV;
     const hasRealData = false; // This would be replaced with actual API check
-    
+
     if (isDev && !hasRealData) {
       // Load mock data only in development when no real state exists
       setCurrentUser(mockUser);
@@ -45,116 +83,372 @@ function App() {
     }
   }, []);
 
-  const handleActionSubmit = (data: any) => {
-    // Add new request to pending requests state
-    const newRequest = {
-      id: `req-${Date.now()}`,
-      type: data.type,
-      title: data.title,
-      description: data.description,
-      status: 'pending' as const,
-      projectName: data.projectName,
-      createdAt: new Date().toISOString(),
-    };
-    
-    setPendingRequests(prev => [newRequest, ...prev]);
-    
-    notification.success({
-      message: 'Request Submitted',
-      description: `Your ${data.type} request "${data.title}" has been submitted for review.`,
-      placement: 'topRight',
-    });
-  };
-
   // Show loading state if no user data is available yet
   if (!currentUser) {
     return (
-      <Layout className="min-h-screen bg-gray-50">
-        <Header className="bg-white shadow-sm border-b">
-          <div className="flex items-center justify-between h-full max-w-7xl mx-auto px-4">
-            <Title level={3} className="mb-0 text-black">Sourcestream</Title>
-          </div>
-        </Header>
-        <Content className="max-w-7xl mx-auto w-full px-5 py-6">
-          <div className="flex items-center justify-center h-64">
-            <Text>Loading...</Text>
-          </div>
-        </Content>
-      </Layout>
+      <Box minH="100vh" bg="gray.50">
+        <Flex
+          as="header"
+          position="fixed"
+          top={0}
+          left={0}
+          right={0}
+          zIndex={1000}
+          h="64px"
+          bg="white"
+          px={4}
+          align="center"
+          justify="space-between"
+          boxShadow="0 2px 8px rgba(0,0,0,0.15)"
+        >
+          <HStack gap="3">
+            {currentUser?.role === "ospo_admin" && (
+              <IconButton
+                aria-label="Open menu"
+                onClick={onOpen}
+                variant="ghost"
+                color="gray.700"
+                size="md"
+              >
+                <FiMenu />
+              </IconButton>
+            )}
+            <Heading size="md" color="gray.700" fontWeight="bold">
+              SourceStream
+            </Heading>
+          </HStack>
+          <HStack gap="2">
+            <IconButton
+              aria-label="Notifications"
+              variant="ghost"
+              color="gray.700"
+              size="md"
+            >
+              <FiBell />
+            </IconButton>
+            <IconButton
+              aria-label="Profile"
+              variant="ghost"
+              color="gray.700"
+              size="md"
+              onClick={() => alert("Profile management coming soon!")}
+            >
+              <FiUser />
+            </IconButton>
+          </HStack>
+        </Flex>
+        <Flex
+          as="main"
+          direction="column"
+          align="center"
+          justify="center"
+          h="100vh"
+        >
+          <VStack gap="4">
+            <Spinner size="xl" color="blue.500" />
+            <Text color="gray.600">Loading your dashboard...</Text>
+          </VStack>
+        </Flex>
+      </Box>
     );
   }
 
   return (
-    <Layout className="min-h-screen bg-gray-50">
-      <Header className="!bg-white shadow-sm border-b" style={{ backgroundColor: 'white' }}>
-        <div className="flex items-center justify-between h-full max-w-7xl mx-auto px-4">
-          <Title level={3} className="mb-0 text-black">Sourcestream</Title>
-          <div className="flex items-center gap-6">
-            <RequestToolbar onSubmit={handleActionSubmit} />
-            <div className="flex items-center gap-4">
-              <div className="text-right">
-                <Text strong className="block">{currentUser.name}</Text>
-                <Text type="secondary" className="text-sm">{currentUser.department}</Text>
-              </div>
-              <Avatar size="large" icon={<UserOutlined />} className="bg-blue-500" />
-            </div>
-          </div>
-        </div>
-      </Header>
+    <Box minH="100vh" bg="gray.50">
+      {/* Header */}
+      <Flex
+        as="header"
+        position="fixed"
+        top={0}
+        left={0}
+        right={0}
+        zIndex={1000}
+        h="64px"
+        bg="white"
+        px={4}
+        align="center"
+        justify="space-between"
+        boxShadow="0 2px 8px rgba(0,0,0,0.15)"
+      >
+        <HStack gap="3">
+          {currentUser?.role === "ospo_admin" && (
+            <IconButton
+              aria-label="Open menu"
+              onClick={onOpen}
+              variant="ghost"
+              color="gray.700"
+              size="md"
+            >
+              <FiMenu />
+            </IconButton>
+          )}
+          <Heading size="md" color="gray.700" fontWeight="bold">
+            SourceStream
+          </Heading>
+        </HStack>
+        <HStack gap="2">
+          <IconButton
+            aria-label="Notifications"
+            variant="ghost"
+            color="gray.700"
+            size="md"
+          >
+            <FiBell />
+          </IconButton>
+          <IconButton
+            aria-label="Profile"
+            variant="ghost"
+            color="gray.700"
+            size="md"
+            onClick={() => alert("Profile management coming soon!")}
+          >
+            <FiUser />
+          </IconButton>
+        </HStack>
+      </Flex>
 
-      <Content className="max-w-7xl mx-auto w-full px-5 py-6">
-        {/* Welcome Section */}
-        <div className="mb-8">
-          <Title level={2} className="mb-2">Welcome back, {currentUser.name}!</Title>
-          <Text type="secondary" className="text-lg">
-            Manage your open source contributions and project approvals
-          </Text>
-        </div>
+      {/* Main Content */}
+      <Box pt="80px" px={6} pb={6}>
+        <Box maxW="1200px" mx="auto">
+          {/* Quick Actions Section */}
+          <Box bg="white" borderRadius="lg" boxShadow="md" p={6} mb={8}>
+            <Heading size="md" mb={4} color="gray.800">
+              Quick Actions
+            </Heading>
+            <Grid
+              templateColumns={{
+                base: "repeat(1, 1fr)",
+                sm: "repeat(2, 1fr)",
+                md: "repeat(4, 1fr)",
+              }}
+              gap="4"
+            >
+              <GridItem>
+                <Button
+                  size="lg"
+                  w="full"
+                  h="auto"
+                  py={4}
+                  border="2px"
+                  borderColor="orange.200"
+                  color="orange.600"
+                  bg="white"
+                  _hover={{ bg: "orange.50", borderColor: "orange.300" }}
+                  transition="all 0.3s"
+                  onClick={() => handleOpenSourceAction("permission")}
+                >
+                  <VStack gap="1">
+                    <FiShield size={20} />
+                    <Text fontWeight="semibold" textAlign="center">
+                      Request Permission
+                    </Text>
+                    <Text fontSize="xs" color="gray.500" textAlign="center">
+                      Make open source contributions
+                    </Text>
+                  </VStack>
+                </Button>
+              </GridItem>
+              <GridItem>
+                <Button
+                  size="lg"
+                  w="full"
+                  h="auto"
+                  py={4}
+                  border="2px"
+                  borderColor="blue.200"
+                  color="blue.600"
+                  bg="white"
+                  _hover={{ bg: "blue.50", borderColor: "blue.300" }}
+                  transition="all 0.3s"
+                  onClick={() => handleOpenSourceAction("create")}
+                >
+                  <VStack gap="1">
+                    <FiPlus size={20} />
+                    <Text fontWeight="semibold" textAlign="center">
+                      Create New Project
+                    </Text>
+                    <Text fontSize="xs" color="gray.500" textAlign="center">
+                      New open source project
+                    </Text>
+                  </VStack>
+                </Button>
+              </GridItem>
+              <GridItem>
+                <Button
+                  size="lg"
+                  w="full"
+                  h="auto"
+                  py={4}
+                  border="2px"
+                  borderColor="green.200"
+                  color="green.600"
+                  bg="white"
+                  _hover={{ bg: "green.50", borderColor: "green.300" }}
+                  transition="all 0.3s"
+                  onClick={() => handleOpenSourceAction("contribute")}
+                >
+                  <VStack gap="1">
+                    <FiUsers size={20} />
+                    <Text fontWeight="semibold" textAlign="center">
+                      Request to Contribute
+                    </Text>
+                    <Text fontSize="xs" color="gray.500" textAlign="center">
+                      Existing open source project
+                    </Text>
+                  </VStack>
+                </Button>
+              </GridItem>
+              <GridItem>
+                <Button
+                  size="lg"
+                  w="full"
+                  h="auto"
+                  py={4}
+                  border="2px"
+                  borderColor="purple.200"
+                  color="purple.600"
+                  bg="white"
+                  _hover={{ bg: "purple.50", borderColor: "purple.300" }}
+                  transition="all 0.3s"
+                  onClick={() => handleOpenSourceAction("pr-approval")}
+                >
+                  <VStack gap="1">
+                    <FiGitPullRequest size={20} />
+                    <Text fontWeight="semibold" textAlign="center">
+                      PR Approval Request
+                    </Text>
+                    <Text fontSize="xs" color="gray.500" textAlign="center">
+                      Contributing to open source
+                    </Text>
+                  </VStack>
+                </Button>
+              </GridItem>
+            </Grid>
+          </Box>
 
-        {/* Dashboard Widgets - Top 1/3 */}
-        <div className="mb-8">
-          <Title level={3} className="mb-6">Your Dashboard</Title>
-          <Row gutter={[24, 24]} className="mb-4">
-            <Col xs={24} lg={6}>
-              <div className="px-2">
-                <DashboardWidget
-                  title="Projects Authored"
-                  icon={<ProjectOutlined className="text-green-600" />}
-                  projects={authoredProjects}
-                  type="authored"
-                />
-              </div>
-            </Col>
-            <Col xs={24} lg={6}>
-              <div className="px-2">
-                <DashboardWidget
-                  title="Contributed To"
-                  icon={<TeamOutlined className="text-blue-600" />}
-                  projects={contributedProjects}
-                  type="contributed"
-                />
-              </div>
-            </Col>
-            <Col xs={24} lg={6}>
-              <div className="px-2">
-                <DashboardWidget
-                  title="Approved Access"
-                  icon={<CheckCircleOutlined className="text-purple-600" />}
-                  projects={approvedProjects}
-                  type="approved"
-                />
-              </div>
-            </Col>
-            <Col xs={24} lg={6}>
-              <div className="px-2">
-                <PendingRequestsCard requests={pendingRequests} />
-              </div>
-            </Col>
-          </Row>
-        </div>
+          {/* Stats Grid */}
+          <Grid
+            templateColumns={{
+              base: "repeat(1, 1fr)",
+              sm: "repeat(2, 1fr)",
+              lg: "repeat(4, 1fr)",
+            }}
+            gap="6"
+            mb={8}
+          >
+            <GridItem>
+              <Box
+                bg="white"
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                aspectRatio={1}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text fontSize="md" color="gray.600" textAlign="center" mb={2}>
+                  Projects Authored
+                </Text>
+                <Text fontSize="4xl" fontWeight="bold" color="blue.600">
+                  {authoredProjects.length}
+                </Text>
+              </Box>
+            </GridItem>
+            <GridItem>
+              <Box
+                bg="white"
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                aspectRatio={1}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text fontSize="md" color="gray.600" textAlign="center" mb={2}>
+                  Contributed To
+                </Text>
+                <Text fontSize="4xl" fontWeight="bold" color="green.600">
+                  {contributedProjects.length}
+                </Text>
+              </Box>
+            </GridItem>
+            <GridItem>
+              <Box
+                bg="white"
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                aspectRatio={1}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text fontSize="md" color="gray.600" textAlign="center" mb={2}>
+                  Approved Access
+                </Text>
+                <Text fontSize="4xl" fontWeight="bold" color="purple.600">
+                  {approvedProjects.length}
+                </Text>
+              </Box>
+            </GridItem>
+            <GridItem>
+              <Box
+                bg="white"
+                p={6}
+                borderRadius="lg"
+                boxShadow="md"
+                aspectRatio={1}
+                display="flex"
+                flexDirection="column"
+                alignItems="center"
+                justifyContent="center"
+              >
+                <Text fontSize="md" color="gray.600" textAlign="center" mb={2}>
+                  Pending Requests
+                </Text>
+                <Text fontSize="4xl" fontWeight="bold" color="orange.600">
+                  {pendingRequests.length}
+                </Text>
+              </Box>
+            </GridItem>
+          </Grid>
 
-      </Content>
-    </Layout>
+          {/* Dashboard Widgets Grid */}
+          <Grid
+            templateColumns={{
+              base: "repeat(1, 1fr)",
+              lg: "repeat(2, 1fr)",
+            }}
+            gap="6"
+            mb={8}
+          >
+            <GridItem>
+              <DashboardWidget
+                title="My Projects"
+                projects={authoredProjects}
+                type="authored"
+              />
+            </GridItem>
+            <GridItem>
+              <PendingRequestsCard requests={pendingRequests} />
+            </GridItem>
+          </Grid>
+        </Box>
+      </Box>
+
+      {/* Open Source Action Modal */}
+      <OpenSourceActionModal
+        isOpen={modalOpen}
+        onClose={() => setModalOpen(false)}
+        actionType={currentActionType}
+        onSubmit={handleModalSubmit}
+      />
+    </Box>
   );
 }
 

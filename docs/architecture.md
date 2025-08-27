@@ -213,8 +213,9 @@ sequenceDiagram
 
 - **Framework**: React 18 with TypeScript
 - **Build Tool**: Vite
-- **UI Library**: Ant Design
-- **Styling**: TailwindCSS
+- **UI Library**: Chakra UI v3
+- **Icons**: React Icons (Feather Icons)
+- **Styling**: Chakra UI Design System
 - **State Management**: React Context/Hooks
 
 ### Backend
