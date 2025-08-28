@@ -19,8 +19,8 @@ SourceStream is a comprehensive platform designed to streamline and enhance the 
 
 ### Frontend Components
 
-- **React + TypeScript**: Modern frontend with Ant Design components
-- **Responsive Design**: Mobile-friendly layout with consistent card heights
+- **React + TypeScript**: Modern frontend with Chakra UI components
+- **Responsive Design**: Mobile-friendly layout with consistent card heights and uniform spacing
 - **Real-time Updates**: Dynamic request tracking and status management
 
 ## Architecture

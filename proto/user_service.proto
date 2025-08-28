@@ -45,6 +45,7 @@ message User {
   string name = 3;
   string department = 4;
   string email = 5;
+  string role = 6; // user, ospo_admin, admin
 }
 
 message Request {

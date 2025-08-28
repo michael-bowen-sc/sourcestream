@@ -1,52 +1,66 @@
-import React, { useState } from 'react';
-import { Card, List, Tag, Typography, Empty, Pagination } from 'antd';
-import { ClockCircleOutlined, ProjectOutlined, PullRequestOutlined, KeyOutlined } from '@ant-design/icons';
-import { type Request } from '../data/mockData';
-
-const { Text, Title } = Typography;
+import { useState } from "react";
+import {
+  Box,
+  VStack,
+  HStack,
+  Text,
+  Heading,
+  Badge,
+  Button,
+  Flex,
+} from "@chakra-ui/react";
+import {
+  FiChevronLeft,
+  FiChevronRight,
+  FiClock,
+  FiFolder,
+  FiGitPullRequest,
+  FiKey,
+} from "react-icons/fi";
+import { type Request } from "../data/mockData";
 
 interface PendingRequestsCardProps {
   requests: Request[];
 }
 
-const getRequestIcon = (type: Request['type']) => {
+const getRequestIcon = (type: Request["type"]) => {
   switch (type) {
-    case 'project':
-      return <ProjectOutlined className="text-green-600" />;
-    case 'pullrequest':
-      return <PullRequestOutlined className="text-blue-600" />;
-    case 'access':
-      return <KeyOutlined className="text-purple-600" />;
+    case "project":
+      return <FiFolder color="#16a34a" />;
+    case "pullrequest":
+      return <FiGitPullRequest color="#2563eb" />;
+    case "access":
+      return <FiKey color="#9333ea" />;
     default:
-      return <ClockCircleOutlined />;
+      return <FiClock />;
   }
 };
 
-const getStatusColor = (status: Request['status']) => {
+const getStatusColor = (status: Request["status"]) => {
   switch (status) {
-    case 'pending':
-      return 'orange';
-    case 'in_review':
-      return 'blue';
-    case 'approved':
-      return 'green';
-    case 'rejected':
-      return 'red';
+    case "pending":
+      return "orange";
+    case "in_review":
+      return "blue";
+    case "approved":
+      return "green";
+    case "rejected":
+      return "red";
     default:
-      return 'default';
+      return "default";
   }
 };
 
-const getTypeLabel = (type: Request['type']) => {
+const getTypeLabel = (type: Request["type"]) => {
   switch (type) {
-    case 'project':
-      return 'Project Request';
-    case 'pullrequest':
-      return 'Pull Request';
-    case 'access':
-      return 'Access Request';
+    case "project":
+      return "Project Request";
+    case "pullrequest":
+      return "Pull Request";
+    case "access":
+      return "Access Request";
     default:
-      return 'Request';
+      return "Request";
   }
 };
 
@@ -55,96 +69,132 @@ const formatDate = (dateString: string) => {
   const now = new Date();
   const diffTime = Math.abs(now.getTime() - date.getTime());
   const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-  
-  if (diffDays === 1) return '1 day ago';
+
+  if (diffDays === 1) return "1 day ago";
   if (diffDays < 7) return `${diffDays} days ago`;
   if (diffDays < 30) return `${Math.ceil(diffDays / 7)} weeks ago`;
   return date.toLocaleDateString();
 };
 
-const PendingRequestsCard: React.FC<PendingRequestsCardProps> = ({ requests }) => {
+const PendingRequestsCard = ({ requests }: PendingRequestsCardProps) => {
   const [currentPage, setCurrentPage] = useState(1);
   const pageSize = 4;
-  const pendingRequests = requests.filter(req => req.status === 'pending' || req.status === 'in_review');
-  
+  const pendingRequests = requests.filter(
+    (req) => req.status === "pending" || req.status === "in_review",
+  );
+
   const startIndex = (currentPage - 1) * pageSize;
   const endIndex = startIndex + pageSize;
   const currentRequests = pendingRequests.slice(startIndex, endIndex);
 
   return (
-    <Card 
-      className="h-96 shadow-sm hover:shadow-md transition-shadow"
-      title={
-        <div className="flex items-center gap-2">
-          <ClockCircleOutlined className="text-orange-500" />
-          <Title level={4} className="mb-0">Pending Requests</Title>
-        </div>
-      }
-      extra={
-        <Tag color="orange" className="rounded-full">
+    <Box bg="white" borderRadius="lg" boxShadow="md" h="400px" p={6}>
+      <Flex justify="space-between" align="center" mb={4}>
+        <HStack gap="2">
+          <FiClock color="#f56500" />
+          <Heading size="md">Pending Requests</Heading>
+        </HStack>
+        <Badge colorScheme="orange" borderRadius="full">
           {pendingRequests.length}
-        </Tag>
-      }
-      bodyStyle={{ padding: '16px', height: 'calc(100% - 57px)', display: 'flex', flexDirection: 'column' }}
-    >
+        </Badge>
+      </Flex>
+
       {pendingRequests.length === 0 ? (
-        <Empty 
-          description="No pending requests"
-          image={Empty.PRESENTED_IMAGE_SIMPLE}
-          className="py-8"
-        />
+        <Flex direction="column" align="center" justify="center" h="300px">
+          <Text color="gray.500" fontSize="sm">
+            No pending requests
+          </Text>
+        </Flex>
       ) : (
         <>
-          <div className="flex-1 overflow-hidden min-h-0" style={{ minHeight: '240px' }}>
-            <List
-              dataSource={currentRequests}
-              renderItem={(request) => (
-                <List.Item className="px-0 py-3 border-b border-gray-100 last:border-b-0">
-                  <div className="w-full">
-                    <div className="flex items-start justify-between mb-2">
-                      <div className="flex items-center gap-2">
-                        {getRequestIcon(request.type)}
-                        <Text strong className="text-sm">{request.title}</Text>
-                      </div>
-                      <Tag color={getStatusColor(request.status)}>
-                        {request.status.replace('_', ' ')}
-                      </Tag>
-                    </div>
-                    
-                    <div className="ml-6">
-                      <Text type="secondary" className="text-xs block mb-1">
-                        {getTypeLabel(request.type)}
-                        {request.projectName && ` • ${request.projectName}`}
+          <Box flex="1" overflowY="auto" minH="240px">
+            <VStack gap="3" align="stretch">
+              {currentRequests.map((request) => (
+                <Box
+                  key={request.id}
+                  p={3}
+                  borderBottom="1px solid"
+                  borderColor="gray.100"
+                  _hover={{ bg: "gray.50" }}
+                  borderRadius="lg"
+                  transition="all 0.2s"
+                >
+                  <Flex justify="space-between" align="start" mb={2}>
+                    <HStack gap="2">
+                      {getRequestIcon(request.type)}
+                      <Text fontWeight="semibold" fontSize="sm">
+                        {request.title}
                       </Text>
-                      
-                      <Text type="secondary" className="text-xs">
-                        {formatDate(request.createdAt)}
-                      </Text>
-                    </div>
-                  </div>
-                </List.Item>
-              )}
-            />
-          </div>
-          
-          <div className="mt-auto flex-shrink-0 pt-2 border-t border-gray-100" style={{ minHeight: '40px' }}>
+                    </HStack>
+                    <Badge
+                      colorScheme={getStatusColor(request.status)}
+                      fontSize="xs"
+                    >
+                      {request.status.replace("_", " ")}
+                    </Badge>
+                  </Flex>
+
+                  <Box ml={6}>
+                    <Text fontSize="xs" color="gray.600" mb={1}>
+                      {getTypeLabel(request.type)}
+                      {request.projectName && ` • ${request.projectName}`}
+                    </Text>
+
+                    <Text fontSize="xs" color="gray.500">
+                      {formatDate(request.createdAt)}
+                    </Text>
+                  </Box>
+                </Box>
+              ))}
+            </VStack>
+          </Box>
+
+          <Box
+            mt="auto"
+            pt={3}
+            borderTop="1px solid"
+            borderColor="gray.100"
+            minH="40px"
+          >
             {pendingRequests.length > pageSize ? (
-              <Pagination
-                current={currentPage}
-                total={pendingRequests.length}
-                pageSize={pageSize}
-                onChange={setCurrentPage}
-                size="small"
-                showSizeChanger={false}
-                className="text-center"
-              />
+              <HStack justify="center" gap="2">
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() => setCurrentPage(Math.max(1, currentPage - 1))}
+                  disabled={currentPage === 1}
+                >
+                  <FiChevronLeft />
+                </Button>
+                <Text fontSize="sm" color="gray.600">
+                  {currentPage} of{" "}
+                  {Math.ceil(pendingRequests.length / pageSize)}
+                </Text>
+                <Button
+                  size="sm"
+                  variant="ghost"
+                  onClick={() =>
+                    setCurrentPage(
+                      Math.min(
+                        Math.ceil(pendingRequests.length / pageSize),
+                        currentPage + 1,
+                      ),
+                    )
+                  }
+                  disabled={
+                    currentPage === Math.ceil(pendingRequests.length / pageSize)
+                  }
+                >
+                  <FiChevronRight />
+                </Button>
+              </HStack>
             ) : (
-              <div className="h-6"></div>
+              <Box h="24px" />
             )}
-          </div>
+          </Box>
         </>
       )}
-    </Card>
+    </Box>
   );
 };
 
