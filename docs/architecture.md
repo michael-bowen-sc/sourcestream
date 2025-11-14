@@ -50,7 +50,6 @@ erDiagram
         UUID id PK
         VARCHAR type
         VARCHAR title
-        TEXT description
         VARCHAR status
         UUID requester_id FK
         UUID reviewer_id FK
@@ -59,6 +58,8 @@ erDiagram
         VARCHAR project_url
         VARCHAR license
         VARCHAR requested_role
+        UUID approved_project_id FK
+        TEXT business_justification
         TIMESTAMP approved_at
         TIMESTAMP rejected_at
         TEXT rejection_reason

@@ -1,3 +1,4 @@
+// Package services contains gRPC service implementations for the backend.
 package services
 
 import (
@@ -7,31 +8,34 @@ import (
 	"time"
 
 	"sourcestream/backend/models"
-	"sourcestream/backend/repository"
 	pb "sourcestream/backend/pb"
+	"sourcestream/backend/repository"
 
 	"github.com/google/uuid"
 )
 
+// UserService implements the gRPC UserService server.
 type UserService struct {
 	pb.UnimplementedUserServiceServer
 	userRepo *repository.UserRepository
 }
 
+// NewUserService creates a new UserService with the given database.
 func NewUserService(db *sql.DB) *UserService {
 	return &UserService{
 		userRepo: repository.NewUserRepository(db),
 	}
 }
 
-func (s *UserService) RegisterContributor(ctx context.Context, req *pb.RegisterContributorRequest) (*pb.RegisterContributorResponse, error) {
+// RegisterContributor registers a new contributor in the system.
+func (s *UserService) RegisterContributor(_ context.Context, req *pb.RegisterContributorRequest) (*pb.RegisterContributorResponse, error) {
 	user := &models.User{
 		ID:             uuid.New().String(),
 		CorporateID:    req.GetCorporateId(),
 		GithubUsername: req.GetGithubUsername(),
 		Email:          req.GetCorporateId() + "@company.com", // Default email
-		FullName:       req.GetGithubUsername(),              // Use GitHub username as fallback
-		Department:     "Engineering",                        // Default department
+		FullName:       req.GetGithubUsername(),               // Use GitHub username as fallback
+		Department:     "Engineering",                         // Default department
 		Role:           "contributor",
 		IsActive:       true,
 		CreatedAt:      time.Now(),
@@ -48,7 +52,8 @@ func (s *UserService) RegisterContributor(ctx context.Context, req *pb.RegisterC
 	}, nil
 }
 
-func (s *UserService) GetContributor(ctx context.Context, req *pb.GetContributorRequest) (*pb.GetContributorResponse, error) {
+// GetContributor returns contributor details by corporate ID.
+func (s *UserService) GetContributor(_ context.Context, req *pb.GetContributorRequest) (*pb.GetContributorResponse, error) {
 	user, err := s.userRepo.GetUserByCorporateID(req.GetCorporateId())
 	if err != nil {
 		return nil, fmt.Errorf("contributor not found: %w", err)
@@ -64,7 +69,8 @@ func (s *UserService) GetContributor(ctx context.Context, req *pb.GetContributor
 	}, nil
 }
 
-func (s *UserService) GetUserProfile(ctx context.Context, req *pb.GetUserProfileRequest) (*pb.GetUserProfileResponse, error) {
+// GetUserProfile returns a user's profile information.
+func (s *UserService) GetUserProfile(_ context.Context, _ *pb.GetUserProfileRequest) (*pb.GetUserProfileResponse, error) {
 	// Return empty response for now - protobuf needs to be updated
 	return &pb.GetUserProfileResponse{}, nil
 }

@@ -3,23 +3,21 @@ import {
   Box,
   Grid,
   GridItem,
-  Flex,
-  IconButton,
-  useDisclosure,
-  VStack,
-  Text,
-  Button,
   Heading,
+  Text,
+  VStack,
   HStack,
-  Spinner,
+  Icon,
+  Button,
+  useDisclosure,
 } from "@chakra-ui/react";
 import {
-  FiMenu,
-  FiBell,
   FiUser,
-  FiUsers,
-  FiPlus,
-  FiGitPullRequest,
+  FiGitBranch,
+  FiStar,
+  FiCheckCircle,
+  FiClock,
+  FiAlertTriangle,
   FiShield,
 } from "react-icons/fi";
 import DashboardWidget from "./components/DashboardWidget";
@@ -29,15 +27,16 @@ import OpenSourceActionModal, {
   type OpenSourceFormData,
 } from "./components/OpenSourceActionModal";
 import {
-  type Project,
-  type User,
-  type Request,
   mockUser,
   mockAuthoredProjects,
   mockContributedProjects,
   mockApprovedProjects,
   mockPendingRequests,
+  type User,
+  type Project,
+  type Request,
 } from "./data/mockData";
+import { useRequests } from "./hooks/useRequests";
 
 function App() {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
@@ -50,6 +49,11 @@ function App() {
     useState<OpenSourceActionType>("permission");
   const { onOpen } = useDisclosure();
 
+  // Use requests hook for real-time data management
+  const { requests: liveRequests, submitNewRequest } = useRequests(
+    currentUser?.corporateId || "USER001",
+  );
+
   const handleOpenSourceAction = (type: OpenSourceActionType) => {
     setCurrentActionType(type);
     setModalOpen(true);
@@ -57,10 +61,28 @@ function App() {
 
   const handleModalSubmit = async (data: OpenSourceFormData) => {
     console.log("Submitting form data:", data);
-    // TODO: Connect to actual backend service
-    // For now, simulate API call
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    console.log("Form submitted successfully");
+    try {
+      // Map form data to request format
+      const requestData = {
+        type:
+          currentActionType === "permission"
+            ? ("access" as const)
+            : ("project" as const),
+        title: data.title,
+        projectName: data.projectName,
+        projectUrl: data.repositoryUrl,
+      };
+
+      const success = await submitNewRequest(requestData);
+      if (success) {
+        console.log("Form submitted successfully");
+        // Dashboard will automatically refresh via useRequests hook
+      } else {
+        console.error("Form submission failed");
+      }
+    } catch (error) {
+      console.error("Error submitting form:", error);
+    }
   };
 
   useEffect(() => {
@@ -102,7 +124,7 @@ function App() {
           boxShadow="0 2px 8px rgba(0,0,0,0.15)"
         >
           <HStack gap="3">
-            {currentUser?.role === "ospo_admin" && (
+            {currentUser && (currentUser as User).role === "ospo_admin" && (
               <IconButton
                 aria-label="Open menu"
                 onClick={onOpen}
@@ -171,7 +193,7 @@ function App() {
         boxShadow="0 2px 8px rgba(0,0,0,0.15)"
       >
         <HStack gap="3">
-          {currentUser?.role === "ospo_admin" && (
+          {currentUser && (currentUser as User).role === "ospo_admin" && (
             <IconButton
               aria-label="Open menu"
               onClick={onOpen}

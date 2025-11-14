@@ -1,3 +1,4 @@
+// Package services contains gRPC service implementations for the backend.
 package services
 
 import (
@@ -6,24 +7,27 @@ import (
 	"time"
 
 	"sourcestream/backend/models"
-	"sourcestream/backend/repository"
 	pb "sourcestream/backend/pb"
+	"sourcestream/backend/repository"
 
 	"github.com/google/uuid"
 )
 
+// ProjectService implements the gRPC ProjectService server.
 type ProjectService struct {
 	pb.UnimplementedProjectServiceServer
 	projectRepo *repository.ProjectRepository
 }
 
+// NewProjectService creates a new ProjectService with the given database.
 func NewProjectService(db *sql.DB) *ProjectService {
 	return &ProjectService{
 		projectRepo: repository.NewProjectRepository(db),
 	}
 }
 
-func (s *ProjectService) GetAuthoredProjects(ctx context.Context, req *pb.GetAuthoredProjectsRequest) (*pb.GetAuthoredProjectsResponse, error) {
+// GetAuthoredProjects returns projects authored by the specified user.
+func (s *ProjectService) GetAuthoredProjects(_ context.Context, req *pb.GetAuthoredProjectsRequest) (*pb.GetAuthoredProjectsResponse, error) {
 	// Mock data - in real app, fetch from database
 	projects := []*pb.Project{
 		{
@@ -58,13 +62,19 @@ func (s *ProjectService) GetAuthoredProjects(ctx context.Context, req *pb.GetAut
 		},
 	}
 
+	total := len(projects)
+	if total > 2147483647 { // clamp to int32 max
+		total = 2147483647
+	}
+
 	return &pb.GetAuthoredProjectsResponse{
 		Projects: projects,
-		Total:    int32(len(projects)),
+		Total:    int32(total), // #nosec G115 -- total is clamped to int32 range above
 	}, nil
 }
 
-func (s *ProjectService) GetContributedProjects(ctx context.Context, req *pb.GetContributedProjectsRequest) (*pb.GetContributedProjectsResponse, error) {
+// GetContributedProjects returns projects the user contributes to.
+func (s *ProjectService) GetContributedProjects(_ context.Context, _ *pb.GetContributedProjectsRequest) (*pb.GetContributedProjectsResponse, error) {
 	// Mock data - in real app, fetch from database
 	projects := []*pb.Project{
 		{
@@ -109,13 +119,19 @@ func (s *ProjectService) GetContributedProjects(ctx context.Context, req *pb.Get
 		},
 	}
 
+	total := len(projects)
+	if total > 2147483647 {
+		total = 2147483647
+	}
+
 	return &pb.GetContributedProjectsResponse{
 		Projects: projects,
-		Total:    int32(len(projects)),
+		Total:    int32(total), // #nosec G115 -- total is clamped to int32 range above
 	}, nil
 }
 
-func (s *ProjectService) GetApprovedProjects(ctx context.Context, req *pb.GetApprovedProjectsRequest) (*pb.GetApprovedProjectsResponse, error) {
+// GetApprovedProjects returns approved projects relevant to the user.
+func (s *ProjectService) GetApprovedProjects(_ context.Context, _ *pb.GetApprovedProjectsRequest) (*pb.GetApprovedProjectsResponse, error) {
 	// Mock data - in real app, fetch from database
 	projects := []*pb.Project{
 		{
@@ -170,13 +186,19 @@ func (s *ProjectService) GetApprovedProjects(ctx context.Context, req *pb.GetApp
 		},
 	}
 
+	total := len(projects)
+	if total > 2147483647 {
+		total = 2147483647
+	}
+
 	return &pb.GetApprovedProjectsResponse{
 		Projects: projects,
-		Total:    int32(len(projects)),
+		Total:    int32(total), // #nosec G115 -- total is clamped to int32 range above
 	}, nil
 }
 
-func (s *ProjectService) CreateProject(ctx context.Context, req *pb.CreateProjectRequest) (*pb.CreateProjectResponse, error) {
+// CreateProject creates a new project.
+func (s *ProjectService) CreateProject(_ context.Context, req *pb.CreateProjectRequest) (*pb.CreateProjectResponse, error) {
 	// Mock implementation - in real app, save to database
 	project := &models.Project{
 		ID:          uuid.New().String(),
@@ -206,5 +228,125 @@ func (s *ProjectService) CreateProject(ctx context.Context, req *pb.CreateProjec
 	return &pb.CreateProjectResponse{
 		Project: pbProject,
 		Message: "Project created successfully",
+	}, nil
+}
+
+// GetApprovedProjectsList returns the catalog of pre-approved projects.
+func (s *ProjectService) GetApprovedProjectsList(_ context.Context, req *pb.GetApprovedProjectsListRequest) (*pb.GetApprovedProjectsListResponse, error) {
+	// Mock data - in real app, fetch from approved_projects table
+	approvedProjects := []*pb.ApprovedProject{
+		{
+			Id:                       "1",
+			Name:                     "React",
+			Description:              "A JavaScript library for building user interfaces",
+			RepositoryUrl:            "https://github.com/facebook/react",
+			License:                  "MIT",
+			ContributionType:         "CLA",
+			MaintainerContact:        "react-team@meta.com",
+			ApprovalDate:             "2024-01-15T00:00:00Z",
+			IsActive:                 true,
+			AllowedContributionTypes: []string{"bug-fix", "feature", "documentation", "testing"},
+		},
+		{
+			Id:                       "2",
+			Name:                     "Vue.js",
+			Description:              "The Progressive JavaScript Framework",
+			RepositoryUrl:            "https://github.com/vuejs/vue",
+			License:                  "MIT",
+			ContributionType:         "DCO",
+			MaintainerContact:        "team@vuejs.org",
+			ApprovalDate:             "2024-01-10T00:00:00Z",
+			IsActive:                 true,
+			AllowedContributionTypes: []string{"bug-fix", "feature", "documentation", "testing", "maintenance"},
+		},
+		{
+			Id:                       "3",
+			Name:                     "Angular",
+			Description:              "Deliver web apps with confidence",
+			RepositoryUrl:            "https://github.com/angular/angular",
+			License:                  "MIT",
+			ContributionType:         "CLA",
+			MaintainerContact:        "angular-team@google.com",
+			ApprovalDate:             "2024-01-20T00:00:00Z",
+			IsActive:                 true,
+			AllowedContributionTypes: []string{"bug-fix", "feature", "documentation", "testing"},
+		},
+		{
+			Id:                       "4",
+			Name:                     "Node.js",
+			Description:              "Node.js JavaScript runtime",
+			RepositoryUrl:            "https://github.com/nodejs/node",
+			License:                  "MIT",
+			ContributionType:         "DCO",
+			MaintainerContact:        "nodejs-team@nodejs.org",
+			ApprovalDate:             "2024-01-25T00:00:00Z",
+			IsActive:                 true,
+			AllowedContributionTypes: []string{"bug-fix", "feature", "documentation", "testing", "maintenance"},
+		},
+		{
+			Id:                       "5",
+			Name:                     "TypeScript",
+			Description:              "TypeScript is a superset of JavaScript",
+			RepositoryUrl:            "https://github.com/microsoft/TypeScript",
+			License:                  "Apache-2.0",
+			ContributionType:         "CLA",
+			MaintainerContact:        "typescript@microsoft.com",
+			ApprovalDate:             "2024-02-01T00:00:00Z",
+			IsActive:                 true,
+			AllowedContributionTypes: []string{"bug-fix", "feature", "documentation", "testing"},
+		},
+		{
+			Id:                       "6",
+			Name:                     "Kubernetes",
+			Description:              "Production-Grade Container Scheduling and Management",
+			RepositoryUrl:            "https://github.com/kubernetes/kubernetes",
+			License:                  "Apache-2.0",
+			ContributionType:         "CLA",
+			MaintainerContact:        "kubernetes-dev@googlegroups.com",
+			ApprovalDate:             "2024-02-05T00:00:00Z",
+			IsActive:                 true,
+			AllowedContributionTypes: []string{"bug-fix", "feature", "documentation", "testing", "maintenance"},
+		},
+		{
+			Id:                       "7",
+			Name:                     "Docker",
+			Description:              "Docker container platform",
+			RepositoryUrl:            "https://github.com/docker/docker-ce",
+			License:                  "Apache-2.0",
+			ContributionType:         "DCO",
+			MaintainerContact:        "docker-maintainers@docker.com",
+			ApprovalDate:             "2024-02-10T00:00:00Z",
+			IsActive:                 true,
+			AllowedContributionTypes: []string{"bug-fix", "feature", "documentation", "testing"},
+		},
+		{
+			Id:                       "8",
+			Name:                     "Webpack",
+			Description:              "A bundler for javascript and friends",
+			RepositoryUrl:            "https://github.com/webpack/webpack",
+			License:                  "MIT",
+			ContributionType:         "DCO",
+			MaintainerContact:        "webpack-team@webpack.js.org",
+			ApprovalDate:             "2024-02-15T00:00:00Z",
+			IsActive:                 true,
+			AllowedContributionTypes: []string{"bug-fix", "feature", "documentation", "testing", "maintenance"},
+		},
+	}
+
+	// Filter by active status if requested
+	if req.GetActiveOnly() {
+		var activeProjects []*pb.ApprovedProject
+
+		for _, project := range approvedProjects {
+			if project.GetIsActive() {
+				activeProjects = append(activeProjects, project)
+			}
+		}
+
+		approvedProjects = activeProjects
+	}
+
+	return &pb.GetApprovedProjectsListResponse{
+		Projects: approvedProjects,
 	}, nil
 }

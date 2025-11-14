@@ -14,9 +14,6 @@ linters:
     - govet
     - staticcheck
     - unused
-    - deadcode
-    - structcheck
-    - varcheck
     - ineffassign
     - typecheck
     - gosimple

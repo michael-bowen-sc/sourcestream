@@ -1,3 +1,4 @@
+// Package main starts the gRPC and REST servers for the SourceStream backend.
 package main
 
 import (
@@ -8,8 +9,8 @@ import (
 	"time"
 
 	"sourcestream/backend/config"
-	"sourcestream/backend/services"
 	pb "sourcestream/backend/pb"
+	"sourcestream/backend/services"
 
 	"github.com/grpc-ecosystem/grpc-gateway/v2/runtime"
 	"google.golang.org/grpc"
@@ -21,7 +22,8 @@ func main() {
 	if err != nil {
 		log.Fatalf("failed to connect to database: %v", err)
 	}
-	defer db.Close()
+
+	defer func() { _ = db.Close() }()
 
 	// Create service instances with database
 	userService := services.NewUserService(db)
@@ -29,20 +31,21 @@ func main() {
 	requestService := services.NewRequestService(db)
 
 	// Start gRPC server
+	// #nosec G102 -- binding to all interfaces is expected in container/K8s environments
 	lis, err := net.Listen("tcp", ":50051")
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
 	}
 
 	grpcServer := grpc.NewServer()
-	
+
 	// Register all services
 	pb.RegisterUserServiceServer(grpcServer, userService)
 	pb.RegisterProjectServiceServer(grpcServer, projectService)
 	pb.RegisterRequestServiceServer(grpcServer, requestService)
 
 	log.Printf("gRPC server listening at %v", lis.Addr())
-	
+
 	// Start gRPC server in goroutine
 	go func() {
 		if err := grpcServer.Serve(lis); err != nil {
@@ -51,13 +54,13 @@ func main() {
 	}()
 
 	// Start gRPC Gateway (REST) server
-	ctx := context.Background()
-	ctx, cancel := context.WithCancel(ctx)
+	// Create cancellable context (reserved for future graceful shutdown)
+	_, cancel := context.WithCancel(context.Background())
 	defer cancel()
 
 	// Create gRPC-Gateway mux
 	mux := runtime.NewServeMux()
-	
+
 	// For now, skip gRPC-Gateway registration until protobuf files are updated
 	// The gRPC server will still work directly
 
@@ -70,6 +73,7 @@ func main() {
 	}
 
 	log.Printf("REST server listening on :8080")
+
 	if err := httpServer.ListenAndServe(); err != nil && err != http.ErrServerClosed {
 		log.Fatalf("failed to serve REST: %v", err)
 	}
@@ -81,12 +85,12 @@ func corsHandler(h http.Handler) http.Handler {
 		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS")
 		w.Header().Set("Access-Control-Allow-Headers", "Content-Type, Authorization")
-		
+
 		if r.Method == "OPTIONS" {
 			w.WriteHeader(http.StatusOK)
 			return
 		}
-		
+
 		h.ServeHTTP(w, r)
 	})
 }

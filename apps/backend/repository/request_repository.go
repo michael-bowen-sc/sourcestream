@@ -1,65 +1,75 @@
+// Package repository provides the data access layer for backend models.
 package repository
 
 import (
 	"database/sql"
 	"fmt"
+
 	"sourcestream/backend/models"
 
 	"github.com/google/uuid"
 )
 
+// RequestRepository provides DB operations for request records.
 type RequestRepository struct {
 	db *sql.DB
 }
 
+// NewRequestRepository creates a new RequestRepository with the given DB handle.
 func NewRequestRepository(db *sql.DB) *RequestRepository {
 	return &RequestRepository{db: db}
 }
 
+// CreateRequest inserts a new request row.
 func (r *RequestRepository) CreateRequest(request *models.Request) error {
 	query := `
-		INSERT INTO requests (id, type, title, description, status, requester_id, project_id, project_name, project_url, license, requested_role)
-		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)`
-	
+		INSERT INTO requests (id, type, title, status, requester_id, project_id, project_name, project_url, license, requested_role)
+		VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10)`
+
 	if request.ID == "" {
 		request.ID = uuid.New().String()
 	}
-	
+
 	_, err := r.db.Exec(query, request.ID, request.Type, request.Title,
-		request.Description, request.Status, request.RequesterID,
+		request.Status, request.RequesterID,
 		request.ProjectID, request.ProjectName, request.ProjectURL,
 		request.License, request.Role)
+
 	return err
 }
 
+// GetRequestByID returns a request by its ID.
 func (r *RequestRepository) GetRequestByID(id string) (*models.Request, error) {
 	query := `
-		SELECT id, type, title, description, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
+		SELECT id, type, title, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
 		FROM requests WHERE id = $1`
-	
+
 	request := &models.Request{}
 	err := r.db.QueryRow(query, id).Scan(
-		&request.ID, &request.Type, &request.Title, &request.Description,
+		&request.ID, &request.Type, &request.Title,
 		&request.Status, &request.RequesterID, &request.ReviewerID,
 		&request.ProjectID, &request.ProjectName, &request.ProjectURL,
 		&request.License, &request.Role, &request.ApprovedAt,
 		&request.RejectedAt, &request.RejectionReason,
 		&request.CreatedAt, &request.UpdatedAt,
 	)
-	
+
 	if err == sql.ErrNoRows {
 		return nil, fmt.Errorf("request not found")
 	}
+
 	return request, err
 }
 
+// GetRequestsByRequesterID returns requests made by a specific requester, optionally filtered by status.
 func (r *RequestRepository) GetRequestsByRequesterID(requesterID string, status string, limit, offset int) ([]*models.Request, error) {
 	var query string
+
 	var args []interface{}
-	
+
 	if status != "" {
 		query = `
-			SELECT id, type, title, description, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
+			SELECT id, type, title, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
 			FROM requests 
 			WHERE requester_id = $1 AND status = $2
 			ORDER BY created_at DESC
@@ -67,73 +77,82 @@ func (r *RequestRepository) GetRequestsByRequesterID(requesterID string, status 
 		args = []interface{}{requesterID, status, limit, offset}
 	} else {
 		query = `
-			SELECT id, type, title, description, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
+			SELECT id, type, title, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
 			FROM requests 
 			WHERE requester_id = $1
 			ORDER BY created_at DESC
 			LIMIT $2 OFFSET $3`
 		args = []interface{}{requesterID, limit, offset}
 	}
-	
+
 	rows, err := r.db.Query(query, args...)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	
+
+	defer func() { _ = rows.Close() }()
+
 	return r.scanRequests(rows)
 }
 
+// GetRequestsByType lists requests filtered by type.
 func (r *RequestRepository) GetRequestsByType(requestType string, limit, offset int) ([]*models.Request, error) {
 	query := `
-		SELECT id, type, title, description, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
+		SELECT id, type, title, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
 		FROM requests 
 		WHERE type = $1
 		ORDER BY created_at DESC
 		LIMIT $2 OFFSET $3`
-	
+
 	rows, err := r.db.Query(query, requestType, limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	
+
+	defer func() { _ = rows.Close() }()
+
 	return r.scanRequests(rows)
 }
 
+// GetPendingRequests lists requests currently in a pending state.
 func (r *RequestRepository) GetPendingRequests(limit, offset int) ([]*models.Request, error) {
 	query := `
-		SELECT id, type, title, description, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
+		SELECT id, type, title, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
 		FROM requests 
 		WHERE status = 'pending'
 		ORDER BY created_at ASC
 		LIMIT $1 OFFSET $2`
-	
+
 	rows, err := r.db.Query(query, limit, offset)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	
+
+	defer func() { _ = rows.Close() }()
+
 	return r.scanRequests(rows)
 }
 
+// GetRequestsByUser returns requests made by a specific user.
 func (r *RequestRepository) GetRequestsByUser(userID string) ([]*models.Request, error) {
 	query := `
-		SELECT id, type, title, description, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
+		SELECT id, type, title, status, requester_id, reviewer_id, project_id, project_name, project_url, license, requested_role, approved_at, rejected_at, rejection_reason, created_at, updated_at
 		FROM requests WHERE requester_id = $1 ORDER BY created_at DESC`
-	
+
 	rows, err := r.db.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	
+
+	defer func() { _ = rows.Close() }()
+
 	var requests []*models.Request
+
 	for rows.Next() {
 		request := &models.Request{}
+
 		err := rows.Scan(
-			&request.ID, &request.Type, &request.Title, &request.Description,
+			&request.ID, &request.Type, &request.Title,
 			&request.Status, &request.RequesterID, &request.ReviewerID,
 			&request.ProjectID, &request.ProjectName, &request.ProjectURL,
 			&request.License, &request.Role, &request.ApprovedAt,
@@ -143,12 +162,14 @@ func (r *RequestRepository) GetRequestsByUser(userID string) ([]*models.Request,
 		if err != nil {
 			return nil, err
 		}
+
 		requests = append(requests, request)
 	}
-	
+
 	return requests, rows.Err()
 }
 
+// UpdateRequestStatus updates the status and reviewer info for a request.
 func (r *RequestRepository) UpdateRequestStatus(id string, status string, reviewerID *string, rejectionReason *string) error {
 	query := `
 		UPDATE requests 
@@ -156,38 +177,46 @@ func (r *RequestRepository) UpdateRequestStatus(id string, status string, review
 			approved_at = CASE WHEN $2 = 'approved' THEN CURRENT_TIMESTAMP ELSE approved_at END,
 			rejected_at = CASE WHEN $2 = 'rejected' THEN CURRENT_TIMESTAMP ELSE rejected_at END
 		WHERE id = $1`
-	
+
 	_, err := r.db.Exec(query, id, status, reviewerID, rejectionReason)
+
 	return err
 }
 
+// UpdateRequest updates mutable fields on a request.
 func (r *RequestRepository) UpdateRequest(request *models.Request) error {
 	query := `
 		UPDATE requests 
-		SET title = $2, description = $3, status = $4, project_name = $5, project_url = $6, license = $7, requested_role = $8
+		SET title = $2, status = $3, project_name = $4, project_url = $5, license = $6, requested_role = $7
 		WHERE id = $1`
-	
-	_, err := r.db.Exec(query, request.ID, request.Title, request.Description,
+
+	_, err := r.db.Exec(query, request.ID, request.Title,
 		request.Status, request.ProjectName, request.ProjectURL,
 		request.License, request.Role)
+
 	return err
 }
 
+// DeleteRequest deletes a request by ID.
 func (r *RequestRepository) DeleteRequest(id string) error {
 	query := `DELETE FROM requests WHERE id = $1`
 	_, err := r.db.Exec(query, id)
+
 	return err
 }
 
+// AddRequestComment creates a new comment for a request.
 func (r *RequestRepository) AddRequestComment(requestID, userID, comment string, isInternal bool) error {
 	query := `
 		INSERT INTO request_comments (request_id, user_id, comment, is_internal)
 		VALUES ($1, $2, $3, $4)`
-	
+
 	_, err := r.db.Exec(query, requestID, userID, comment, isInternal)
+
 	return err
 }
 
+// GetRequestComments returns comments for a request ordered by creation time.
 func (r *RequestRepository) GetRequestComments(requestID string) ([]*models.RequestComment, error) {
 	query := `
 		SELECT rc.id, rc.request_id, rc.user_id, rc.comment, rc.is_internal, rc.created_at,
@@ -196,16 +225,19 @@ func (r *RequestRepository) GetRequestComments(requestID string) ([]*models.Requ
 		INNER JOIN users u ON rc.user_id = u.id
 		WHERE rc.request_id = $1
 		ORDER BY rc.created_at ASC`
-	
+
 	rows, err := r.db.Query(query, requestID)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	
+
+	defer func() { _ = rows.Close() }()
+
 	var comments []*models.RequestComment
+
 	for rows.Next() {
 		comment := &models.RequestComment{}
+
 		err := rows.Scan(
 			&comment.ID, &comment.RequestID, &comment.UserID,
 			&comment.Comment, &comment.IsInternal, &comment.CreatedAt,
@@ -214,45 +246,53 @@ func (r *RequestRepository) GetRequestComments(requestID string) ([]*models.Requ
 		if err != nil {
 			return nil, err
 		}
+
 		comments = append(comments, comment)
 	}
-	
+
 	return comments, rows.Err()
 }
 
+// GetRequestStats aggregates request counts by status for a user.
 func (r *RequestRepository) GetRequestStats(userID string) (map[string]int, error) {
 	query := `
 		SELECT status, COUNT(*) as count
 		FROM requests 
 		WHERE requester_id = $1
 		GROUP BY status`
-	
+
 	rows, err := r.db.Query(query, userID)
 	if err != nil {
 		return nil, err
 	}
-	defer rows.Close()
-	
+	defer func() { _ = rows.Close() }()
+
 	stats := make(map[string]int)
+
 	for rows.Next() {
 		var status string
+
 		var count int
+
 		err := rows.Scan(&status, &count)
 		if err != nil {
 			return nil, err
 		}
+
 		stats[status] = count
 	}
-	
+
 	return stats, rows.Err()
 }
 
 func (r *RequestRepository) scanRequests(rows *sql.Rows) ([]*models.Request, error) {
 	var requests []*models.Request
+
 	for rows.Next() {
 		request := &models.Request{}
+
 		err := rows.Scan(
-			&request.ID, &request.Type, &request.Title, &request.Description,
+			&request.ID, &request.Type, &request.Title,
 			&request.Status, &request.RequesterID, &request.ReviewerID,
 			&request.ProjectID, &request.ProjectName, &request.ProjectURL,
 			&request.License, &request.Role, &request.ApprovedAt,
@@ -262,8 +302,9 @@ func (r *RequestRepository) scanRequests(rows *sql.Rows) ([]*models.Request, err
 		if err != nil {
 			return nil, err
 		}
+
 		requests = append(requests, request)
 	}
-	
+
 	return requests, rows.Err()
 }

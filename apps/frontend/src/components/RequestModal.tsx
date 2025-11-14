@@ -1,23 +1,39 @@
-import { useState, useEffect } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
+  FormControl,
+  FormLabel,
   Input,
-  Textarea,
+  Modal,
+  ModalBody,
+  ModalCloseButton,
+  ModalContent,
+  ModalFooter,
+  ModalHeader,
+  ModalOverlay,
+  Select,
   VStack,
   HStack,
+  IconButton,
   Text,
-  Heading,
-  Flex,
-  Grid,
-  GridItem,
+  FormErrorMessage,
+  Alert,
+  AlertIcon,
+  AlertTitle,
+  AlertDescription,
 } from "@chakra-ui/react";
 import { FiFolder, FiGitPullRequest, FiKey, FiX } from "react-icons/fi";
+import {
+  validateProjectRequest,
+  validateAccessRequest,
+  validatePullRequestRequest,
+  type ValidationError,
+} from "../utils/validation";
 
 export interface RequestFormData {
   type: "project" | "pullrequest" | "access";
   title: string;
-  description: string;
   projectName?: string;
   projectUrl?: string;
   license?: string;
@@ -43,7 +59,6 @@ const RequestModal: React.FC<RequestModalProps> = ({
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<Partial<RequestFormData>>({
     title: "",
-    description: "",
     projectName: "",
     projectUrl: "",
     license: "",
@@ -66,7 +81,6 @@ const RequestModal: React.FC<RequestModalProps> = ({
       const submitData: RequestFormData = {
         type: requestType,
         title: formData.title || "",
-        description: formData.description || "",
         ...(requestType === "project" && {
           projectName: formData.projectName,
           projectUrl: formData.projectUrl,
@@ -89,7 +103,6 @@ const RequestModal: React.FC<RequestModalProps> = ({
   const handleCancel = () => {
     setFormData({
       title: "",
-      description: "",
       projectName: "",
       projectUrl: "",
       license: "",
@@ -306,21 +319,6 @@ const RequestModal: React.FC<RequestModalProps> = ({
                 placeholder="Enter request title"
                 value={formData.title || ""}
                 onChange={(e) => handleInputChange("title", e.target.value)}
-                required
-              />
-            </Box>
-
-            <Box>
-              <Text mb={2} fontWeight="medium">
-                Description *
-              </Text>
-              <Textarea
-                rows={4}
-                placeholder="Provide detailed information about your request"
-                value={formData.description || ""}
-                onChange={(e) =>
-                  handleInputChange("description", e.target.value)
-                }
                 required
               />
             </Box>
