@@ -16,12 +16,16 @@ SourceStream is a comprehensive platform designed to streamline and enhance the 
 - **PostgreSQL Integration**: Full database schema with migrations and seed data
 - **gRPC Services**: UserService, ProjectService, and RequestService with repository pattern
 - **Request Management**: Complete CRUD operations for project requests and approvals
+- **Comprehensive Testing**: Mock-based unit tests and integration tests for all service methods
+- **API Validation**: Input validation and error handling at service and repository layers
 
 ### Frontend Components
 
 - **React + TypeScript**: Modern frontend with Chakra UI components
 - **Responsive Design**: Mobile-friendly layout with consistent card heights and uniform spacing
 - **Real-time Updates**: Dynamic request tracking and status management
+- **Comprehensive Testing**: Unit, integration, and component tests with Jest and React Testing Library
+- **Form Validation**: Robust client-side validation with error handling and business rules
 
 ## Architecture
 
@@ -36,6 +40,9 @@ sourcestream/
 │   └── frontend/         # React TypeScript app
 │       ├── src/
 │       │   ├── components/  # Reusable UI components
+│       │   ├── hooks/       # Custom React hooks
+│       │   ├── utils/       # Validation and utility functions
+│       │   ├── test/        # Test setup and mocks
 │       │   └── data/        # Mock data and types
 ├── proto/                # Protocol buffer definitions
 └── docs/                 # Documentation
@@ -164,8 +171,43 @@ SERVER_PORT=50051
 GATEWAY_PORT=8080
 ```
 
+## Testing & Quality Assurance
+
+### Frontend Testing
+
+```bash
+cd apps/frontend
+
+# Run all tests
+npm test
+
+# Run tests in watch mode
+npm run test:watch
+
+# Generate coverage report
+npm run test:coverage
+```
+
+### Backend Testing
+
+```bash
+cd apps/backend
+
+# Run all tests
+go test ./...
+
+# Run tests with coverage
+go test -cover ./...
+
+# Run specific service tests
+go test ./services/
+```
+
 ## Recent Updates
 
+- **Comprehensive Testing Suite**: Added unit, integration, and component tests with Jest and Go testing
+- **Form Validation**: Implemented robust client-side validation with error handling
+- **Backend API Integration**: Connected frontend forms to backend services with real-time updates
 - **Modal Request System**: Moved action cards to header toolbar with comprehensive modal forms
 - **Dashboard Pagination**: Added 4-row pagination to all dashboard cards for better performance
 - **Consistent UI**: Fixed card heights and improved visual consistency across components

@@ -1,3 +1,4 @@
+// Package config contains configuration structures and database helpers.
 package config
 
 import (
@@ -8,9 +9,10 @@ import (
 	"strconv"
 	"time"
 
-	_ "github.com/lib/pq"
+	_ "github.com/lib/pq" // register postgres driver via side-effects
 )
 
+// DatabaseConfig holds PostgreSQL connection settings.
 type DatabaseConfig struct {
 	Host     string
 	Port     int
@@ -20,6 +22,7 @@ type DatabaseConfig struct {
 	SSLMode  string
 }
 
+// NewDatabaseConfig builds a DatabaseConfig from environment variables with defaults.
 func NewDatabaseConfig() *DatabaseConfig {
 	return &DatabaseConfig{
 		Host:     getEnv("DB_HOST", "localhost"),
@@ -31,14 +34,16 @@ func NewDatabaseConfig() *DatabaseConfig {
 	}
 }
 
+// ConnectionString returns a lib/pq connection string from the config.
 func (c *DatabaseConfig) ConnectionString() string {
 	return fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=%s",
 		c.Host, c.Port, c.User, c.Password, c.DBName, c.SSLMode)
 }
 
+// NewDatabase opens and verifies a PostgreSQL connection using environment configuration.
 func NewDatabase() (*sql.DB, error) {
 	config := NewDatabaseConfig()
-	
+
 	db, err := sql.Open("postgres", config.ConnectionString())
 	if err != nil {
 		return nil, fmt.Errorf("failed to open database: %w", err)
@@ -55,6 +60,7 @@ func NewDatabase() (*sql.DB, error) {
 	}
 
 	log.Printf("Successfully connected to PostgreSQL database: %s", config.DBName)
+
 	return db, nil
 }
 
@@ -63,6 +69,7 @@ func getEnv(key, defaultValue string) string {
 	if value := os.Getenv(key); value != "" {
 		return value
 	}
+
 	return defaultValue
 }
 
@@ -72,5 +79,6 @@ func getEnvAsInt(key string, defaultValue int) int {
 			return intValue
 		}
 	}
+
 	return defaultValue
 }

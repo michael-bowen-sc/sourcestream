@@ -122,6 +122,122 @@ func (x *Project) GetOwnerId() string {
 	return ""
 }
 
+type ApprovedProject struct {
+	state                    protoimpl.MessageState `protogen:"open.v1"`
+	Id                       string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Name                     string                 `protobuf:"bytes,2,opt,name=name,proto3" json:"name,omitempty"`
+	Description              string                 `protobuf:"bytes,3,opt,name=description,proto3" json:"description,omitempty"`
+	RepositoryUrl            string                 `protobuf:"bytes,4,opt,name=repository_url,json=repositoryUrl,proto3" json:"repository_url,omitempty"`
+	License                  string                 `protobuf:"bytes,5,opt,name=license,proto3" json:"license,omitempty"`
+	ContributionType         string                 `protobuf:"bytes,6,opt,name=contribution_type,json=contributionType,proto3" json:"contribution_type,omitempty"` // CLA, CCLA, DCO
+	MaintainerContact        string                 `protobuf:"bytes,7,opt,name=maintainer_contact,json=maintainerContact,proto3" json:"maintainer_contact,omitempty"`
+	ApprovalDate             string                 `protobuf:"bytes,8,opt,name=approval_date,json=approvalDate,proto3" json:"approval_date,omitempty"`
+	IsActive                 bool                   `protobuf:"varint,9,opt,name=is_active,json=isActive,proto3" json:"is_active,omitempty"`
+	AllowedContributionTypes []string               `protobuf:"bytes,10,rep,name=allowed_contribution_types,json=allowedContributionTypes,proto3" json:"allowed_contribution_types,omitempty"` // bug-fix, feature, documentation, etc.
+	unknownFields            protoimpl.UnknownFields
+	sizeCache                protoimpl.SizeCache
+}
+
+func (x *ApprovedProject) Reset() {
+	*x = ApprovedProject{}
+	mi := &file_user_service_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ApprovedProject) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ApprovedProject) ProtoMessage() {}
+
+func (x *ApprovedProject) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ApprovedProject.ProtoReflect.Descriptor instead.
+func (*ApprovedProject) Descriptor() ([]byte, []int) {
+	return file_user_service_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *ApprovedProject) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
+}
+
+func (x *ApprovedProject) GetName() string {
+	if x != nil {
+		return x.Name
+	}
+	return ""
+}
+
+func (x *ApprovedProject) GetDescription() string {
+	if x != nil {
+		return x.Description
+	}
+	return ""
+}
+
+func (x *ApprovedProject) GetRepositoryUrl() string {
+	if x != nil {
+		return x.RepositoryUrl
+	}
+	return ""
+}
+
+func (x *ApprovedProject) GetLicense() string {
+	if x != nil {
+		return x.License
+	}
+	return ""
+}
+
+func (x *ApprovedProject) GetContributionType() string {
+	if x != nil {
+		return x.ContributionType
+	}
+	return ""
+}
+
+func (x *ApprovedProject) GetMaintainerContact() string {
+	if x != nil {
+		return x.MaintainerContact
+	}
+	return ""
+}
+
+func (x *ApprovedProject) GetApprovalDate() string {
+	if x != nil {
+		return x.ApprovalDate
+	}
+	return ""
+}
+
+func (x *ApprovedProject) GetIsActive() bool {
+	if x != nil {
+		return x.IsActive
+	}
+	return false
+}
+
+func (x *ApprovedProject) GetAllowedContributionTypes() []string {
+	if x != nil {
+		return x.AllowedContributionTypes
+	}
+	return nil
+}
+
 type User struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	CorporateId    string                 `protobuf:"bytes,1,opt,name=corporate_id,json=corporateId,proto3" json:"corporate_id,omitempty"`
@@ -129,13 +245,14 @@ type User struct {
 	Name           string                 `protobuf:"bytes,3,opt,name=name,proto3" json:"name,omitempty"`
 	Department     string                 `protobuf:"bytes,4,opt,name=department,proto3" json:"department,omitempty"`
 	Email          string                 `protobuf:"bytes,5,opt,name=email,proto3" json:"email,omitempty"`
+	Role           string                 `protobuf:"bytes,6,opt,name=role,proto3" json:"role,omitempty"` // user, ospo_admin, admin
 	unknownFields  protoimpl.UnknownFields
 	sizeCache      protoimpl.SizeCache
 }
 
 func (x *User) Reset() {
 	*x = User{}
-	mi := &file_user_service_proto_msgTypes[1]
+	mi := &file_user_service_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -147,7 +264,7 @@ func (x *User) String() string {
 func (*User) ProtoMessage() {}
 
 func (x *User) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[1]
+	mi := &file_user_service_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -160,7 +277,7 @@ func (x *User) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use User.ProtoReflect.Descriptor instead.
 func (*User) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{1}
+	return file_user_service_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *User) GetCorporateId() string {
@@ -198,26 +315,32 @@ func (x *User) GetEmail() string {
 	return ""
 }
 
+func (x *User) GetRole() string {
+	if x != nil {
+		return x.Role
+	}
+	return ""
+}
+
 type Request struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
 	Type          string                 `protobuf:"bytes,2,opt,name=type,proto3" json:"type,omitempty"` // project, pullrequest, access
 	Title         string                 `protobuf:"bytes,3,opt,name=title,proto3" json:"title,omitempty"`
-	Description   string                 `protobuf:"bytes,4,opt,name=description,proto3" json:"description,omitempty"`
-	Status        string                 `protobuf:"bytes,5,opt,name=status,proto3" json:"status,omitempty"` // pending, approved, rejected
-	RequesterId   string                 `protobuf:"bytes,6,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
-	CreatedAt     string                 `protobuf:"bytes,7,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	ProjectName   string                 `protobuf:"bytes,8,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
-	ProjectUrl    string                 `protobuf:"bytes,9,opt,name=project_url,json=projectUrl,proto3" json:"project_url,omitempty"`
-	License       string                 `protobuf:"bytes,10,opt,name=license,proto3" json:"license,omitempty"`
-	Role          string                 `protobuf:"bytes,11,opt,name=role,proto3" json:"role,omitempty"`
+	Status        string                 `protobuf:"bytes,4,opt,name=status,proto3" json:"status,omitempty"` // pending, approved, rejected
+	RequesterId   string                 `protobuf:"bytes,5,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	CreatedAt     string                 `protobuf:"bytes,6,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	ProjectName   string                 `protobuf:"bytes,7,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
+	ProjectUrl    string                 `protobuf:"bytes,8,opt,name=project_url,json=projectUrl,proto3" json:"project_url,omitempty"`
+	License       string                 `protobuf:"bytes,9,opt,name=license,proto3" json:"license,omitempty"`
+	Role          string                 `protobuf:"bytes,10,opt,name=role,proto3" json:"role,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *Request) Reset() {
 	*x = Request{}
-	mi := &file_user_service_proto_msgTypes[2]
+	mi := &file_user_service_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -229,7 +352,7 @@ func (x *Request) String() string {
 func (*Request) ProtoMessage() {}
 
 func (x *Request) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[2]
+	mi := &file_user_service_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -242,7 +365,7 @@ func (x *Request) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use Request.ProtoReflect.Descriptor instead.
 func (*Request) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{2}
+	return file_user_service_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *Request) GetId() string {
@@ -262,13 +385,6 @@ func (x *Request) GetType() string {
 func (x *Request) GetTitle() string {
 	if x != nil {
 		return x.Title
-	}
-	return ""
-}
-
-func (x *Request) GetDescription() string {
-	if x != nil {
-		return x.Description
 	}
 	return ""
 }
@@ -333,7 +449,7 @@ type RegisterContributorRequest struct {
 
 func (x *RegisterContributorRequest) Reset() {
 	*x = RegisterContributorRequest{}
-	mi := &file_user_service_proto_msgTypes[3]
+	mi := &file_user_service_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -345,7 +461,7 @@ func (x *RegisterContributorRequest) String() string {
 func (*RegisterContributorRequest) ProtoMessage() {}
 
 func (x *RegisterContributorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[3]
+	mi := &file_user_service_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -358,7 +474,7 @@ func (x *RegisterContributorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterContributorRequest.ProtoReflect.Descriptor instead.
 func (*RegisterContributorRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{3}
+	return file_user_service_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *RegisterContributorRequest) GetCorporateId() string {
@@ -384,7 +500,7 @@ type RegisterContributorResponse struct {
 
 func (x *RegisterContributorResponse) Reset() {
 	*x = RegisterContributorResponse{}
-	mi := &file_user_service_proto_msgTypes[4]
+	mi := &file_user_service_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -396,7 +512,7 @@ func (x *RegisterContributorResponse) String() string {
 func (*RegisterContributorResponse) ProtoMessage() {}
 
 func (x *RegisterContributorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[4]
+	mi := &file_user_service_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -409,7 +525,7 @@ func (x *RegisterContributorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use RegisterContributorResponse.ProtoReflect.Descriptor instead.
 func (*RegisterContributorResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{4}
+	return file_user_service_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *RegisterContributorResponse) GetMessage() string {
@@ -428,7 +544,7 @@ type GetContributorRequest struct {
 
 func (x *GetContributorRequest) Reset() {
 	*x = GetContributorRequest{}
-	mi := &file_user_service_proto_msgTypes[5]
+	mi := &file_user_service_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -440,7 +556,7 @@ func (x *GetContributorRequest) String() string {
 func (*GetContributorRequest) ProtoMessage() {}
 
 func (x *GetContributorRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[5]
+	mi := &file_user_service_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -453,7 +569,7 @@ func (x *GetContributorRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContributorRequest.ProtoReflect.Descriptor instead.
 func (*GetContributorRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{5}
+	return file_user_service_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *GetContributorRequest) GetCorporateId() string {
@@ -474,7 +590,7 @@ type GetContributorResponse struct {
 
 func (x *GetContributorResponse) Reset() {
 	*x = GetContributorResponse{}
-	mi := &file_user_service_proto_msgTypes[6]
+	mi := &file_user_service_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -486,7 +602,7 @@ func (x *GetContributorResponse) String() string {
 func (*GetContributorResponse) ProtoMessage() {}
 
 func (x *GetContributorResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[6]
+	mi := &file_user_service_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -499,7 +615,7 @@ func (x *GetContributorResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContributorResponse.ProtoReflect.Descriptor instead.
 func (*GetContributorResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{6}
+	return file_user_service_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *GetContributorResponse) GetCorporateId() string {
@@ -532,7 +648,7 @@ type GetUserProfileRequest struct {
 
 func (x *GetUserProfileRequest) Reset() {
 	*x = GetUserProfileRequest{}
-	mi := &file_user_service_proto_msgTypes[7]
+	mi := &file_user_service_proto_msgTypes[8]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -544,7 +660,7 @@ func (x *GetUserProfileRequest) String() string {
 func (*GetUserProfileRequest) ProtoMessage() {}
 
 func (x *GetUserProfileRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[7]
+	mi := &file_user_service_proto_msgTypes[8]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -557,7 +673,7 @@ func (x *GetUserProfileRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserProfileRequest.ProtoReflect.Descriptor instead.
 func (*GetUserProfileRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{7}
+	return file_user_service_proto_rawDescGZIP(), []int{8}
 }
 
 func (x *GetUserProfileRequest) GetCorporateId() string {
@@ -576,7 +692,7 @@ type GetUserProfileResponse struct {
 
 func (x *GetUserProfileResponse) Reset() {
 	*x = GetUserProfileResponse{}
-	mi := &file_user_service_proto_msgTypes[8]
+	mi := &file_user_service_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -588,7 +704,7 @@ func (x *GetUserProfileResponse) String() string {
 func (*GetUserProfileResponse) ProtoMessage() {}
 
 func (x *GetUserProfileResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[8]
+	mi := &file_user_service_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -601,7 +717,7 @@ func (x *GetUserProfileResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetUserProfileResponse.ProtoReflect.Descriptor instead.
 func (*GetUserProfileResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{8}
+	return file_user_service_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *GetUserProfileResponse) GetUser() *User {
@@ -623,7 +739,7 @@ type GetAuthoredProjectsRequest struct {
 
 func (x *GetAuthoredProjectsRequest) Reset() {
 	*x = GetAuthoredProjectsRequest{}
-	mi := &file_user_service_proto_msgTypes[9]
+	mi := &file_user_service_proto_msgTypes[10]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -635,7 +751,7 @@ func (x *GetAuthoredProjectsRequest) String() string {
 func (*GetAuthoredProjectsRequest) ProtoMessage() {}
 
 func (x *GetAuthoredProjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[9]
+	mi := &file_user_service_proto_msgTypes[10]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -648,7 +764,7 @@ func (x *GetAuthoredProjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuthoredProjectsRequest.ProtoReflect.Descriptor instead.
 func (*GetAuthoredProjectsRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{9}
+	return file_user_service_proto_rawDescGZIP(), []int{10}
 }
 
 func (x *GetAuthoredProjectsRequest) GetUserId() string {
@@ -682,7 +798,7 @@ type GetAuthoredProjectsResponse struct {
 
 func (x *GetAuthoredProjectsResponse) Reset() {
 	*x = GetAuthoredProjectsResponse{}
-	mi := &file_user_service_proto_msgTypes[10]
+	mi := &file_user_service_proto_msgTypes[11]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -694,7 +810,7 @@ func (x *GetAuthoredProjectsResponse) String() string {
 func (*GetAuthoredProjectsResponse) ProtoMessage() {}
 
 func (x *GetAuthoredProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[10]
+	mi := &file_user_service_proto_msgTypes[11]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -707,7 +823,7 @@ func (x *GetAuthoredProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetAuthoredProjectsResponse.ProtoReflect.Descriptor instead.
 func (*GetAuthoredProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{10}
+	return file_user_service_proto_rawDescGZIP(), []int{11}
 }
 
 func (x *GetAuthoredProjectsResponse) GetProjects() []*Project {
@@ -735,7 +851,7 @@ type GetContributedProjectsRequest struct {
 
 func (x *GetContributedProjectsRequest) Reset() {
 	*x = GetContributedProjectsRequest{}
-	mi := &file_user_service_proto_msgTypes[11]
+	mi := &file_user_service_proto_msgTypes[12]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -747,7 +863,7 @@ func (x *GetContributedProjectsRequest) String() string {
 func (*GetContributedProjectsRequest) ProtoMessage() {}
 
 func (x *GetContributedProjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[11]
+	mi := &file_user_service_proto_msgTypes[12]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -760,7 +876,7 @@ func (x *GetContributedProjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContributedProjectsRequest.ProtoReflect.Descriptor instead.
 func (*GetContributedProjectsRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{11}
+	return file_user_service_proto_rawDescGZIP(), []int{12}
 }
 
 func (x *GetContributedProjectsRequest) GetUserId() string {
@@ -794,7 +910,7 @@ type GetContributedProjectsResponse struct {
 
 func (x *GetContributedProjectsResponse) Reset() {
 	*x = GetContributedProjectsResponse{}
-	mi := &file_user_service_proto_msgTypes[12]
+	mi := &file_user_service_proto_msgTypes[13]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -806,7 +922,7 @@ func (x *GetContributedProjectsResponse) String() string {
 func (*GetContributedProjectsResponse) ProtoMessage() {}
 
 func (x *GetContributedProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[12]
+	mi := &file_user_service_proto_msgTypes[13]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -819,7 +935,7 @@ func (x *GetContributedProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetContributedProjectsResponse.ProtoReflect.Descriptor instead.
 func (*GetContributedProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{12}
+	return file_user_service_proto_rawDescGZIP(), []int{13}
 }
 
 func (x *GetContributedProjectsResponse) GetProjects() []*Project {
@@ -847,7 +963,7 @@ type GetApprovedProjectsRequest struct {
 
 func (x *GetApprovedProjectsRequest) Reset() {
 	*x = GetApprovedProjectsRequest{}
-	mi := &file_user_service_proto_msgTypes[13]
+	mi := &file_user_service_proto_msgTypes[14]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -859,7 +975,7 @@ func (x *GetApprovedProjectsRequest) String() string {
 func (*GetApprovedProjectsRequest) ProtoMessage() {}
 
 func (x *GetApprovedProjectsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[13]
+	mi := &file_user_service_proto_msgTypes[14]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -872,7 +988,7 @@ func (x *GetApprovedProjectsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetApprovedProjectsRequest.ProtoReflect.Descriptor instead.
 func (*GetApprovedProjectsRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{13}
+	return file_user_service_proto_rawDescGZIP(), []int{14}
 }
 
 func (x *GetApprovedProjectsRequest) GetUserId() string {
@@ -906,7 +1022,7 @@ type GetApprovedProjectsResponse struct {
 
 func (x *GetApprovedProjectsResponse) Reset() {
 	*x = GetApprovedProjectsResponse{}
-	mi := &file_user_service_proto_msgTypes[14]
+	mi := &file_user_service_proto_msgTypes[15]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -918,7 +1034,7 @@ func (x *GetApprovedProjectsResponse) String() string {
 func (*GetApprovedProjectsResponse) ProtoMessage() {}
 
 func (x *GetApprovedProjectsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[14]
+	mi := &file_user_service_proto_msgTypes[15]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -931,7 +1047,7 @@ func (x *GetApprovedProjectsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetApprovedProjectsResponse.ProtoReflect.Descriptor instead.
 func (*GetApprovedProjectsResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{14}
+	return file_user_service_proto_rawDescGZIP(), []int{15}
 }
 
 func (x *GetApprovedProjectsResponse) GetProjects() []*Project {
@@ -961,7 +1077,7 @@ type CreateProjectRequest struct {
 
 func (x *CreateProjectRequest) Reset() {
 	*x = CreateProjectRequest{}
-	mi := &file_user_service_proto_msgTypes[15]
+	mi := &file_user_service_proto_msgTypes[16]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -973,7 +1089,7 @@ func (x *CreateProjectRequest) String() string {
 func (*CreateProjectRequest) ProtoMessage() {}
 
 func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[15]
+	mi := &file_user_service_proto_msgTypes[16]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -986,7 +1102,7 @@ func (x *CreateProjectRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProjectRequest.ProtoReflect.Descriptor instead.
 func (*CreateProjectRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{15}
+	return file_user_service_proto_rawDescGZIP(), []int{16}
 }
 
 func (x *CreateProjectRequest) GetName() string {
@@ -1034,7 +1150,7 @@ type CreateProjectResponse struct {
 
 func (x *CreateProjectResponse) Reset() {
 	*x = CreateProjectResponse{}
-	mi := &file_user_service_proto_msgTypes[16]
+	mi := &file_user_service_proto_msgTypes[17]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1046,7 +1162,7 @@ func (x *CreateProjectResponse) String() string {
 func (*CreateProjectResponse) ProtoMessage() {}
 
 func (x *CreateProjectResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[16]
+	mi := &file_user_service_proto_msgTypes[17]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1059,7 +1175,7 @@ func (x *CreateProjectResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateProjectResponse.ProtoReflect.Descriptor instead.
 func (*CreateProjectResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{16}
+	return file_user_service_proto_rawDescGZIP(), []int{17}
 }
 
 func (x *CreateProjectResponse) GetProject() *Project {
@@ -1080,17 +1196,16 @@ func (x *CreateProjectResponse) GetMessage() string {
 type SubmitProjectRequestRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	ProjectUrl    string                 `protobuf:"bytes,3,opt,name=project_url,json=projectUrl,proto3" json:"project_url,omitempty"`
-	License       string                 `protobuf:"bytes,4,opt,name=license,proto3" json:"license,omitempty"`
-	RequesterId   string                 `protobuf:"bytes,5,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	ProjectUrl    string                 `protobuf:"bytes,2,opt,name=project_url,json=projectUrl,proto3" json:"project_url,omitempty"`
+	License       string                 `protobuf:"bytes,3,opt,name=license,proto3" json:"license,omitempty"`
+	RequesterId   string                 `protobuf:"bytes,4,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SubmitProjectRequestRequest) Reset() {
 	*x = SubmitProjectRequestRequest{}
-	mi := &file_user_service_proto_msgTypes[17]
+	mi := &file_user_service_proto_msgTypes[18]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1102,7 +1217,7 @@ func (x *SubmitProjectRequestRequest) String() string {
 func (*SubmitProjectRequestRequest) ProtoMessage() {}
 
 func (x *SubmitProjectRequestRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[17]
+	mi := &file_user_service_proto_msgTypes[18]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1115,19 +1230,12 @@ func (x *SubmitProjectRequestRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitProjectRequestRequest.ProtoReflect.Descriptor instead.
 func (*SubmitProjectRequestRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{17}
+	return file_user_service_proto_rawDescGZIP(), []int{18}
 }
 
 func (x *SubmitProjectRequestRequest) GetTitle() string {
 	if x != nil {
 		return x.Title
-	}
-	return ""
-}
-
-func (x *SubmitProjectRequestRequest) GetDescription() string {
-	if x != nil {
-		return x.Description
 	}
 	return ""
 }
@@ -1163,7 +1271,7 @@ type SubmitProjectRequestResponse struct {
 
 func (x *SubmitProjectRequestResponse) Reset() {
 	*x = SubmitProjectRequestResponse{}
-	mi := &file_user_service_proto_msgTypes[18]
+	mi := &file_user_service_proto_msgTypes[19]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1175,7 +1283,7 @@ func (x *SubmitProjectRequestResponse) String() string {
 func (*SubmitProjectRequestResponse) ProtoMessage() {}
 
 func (x *SubmitProjectRequestResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[18]
+	mi := &file_user_service_proto_msgTypes[19]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1188,7 +1296,7 @@ func (x *SubmitProjectRequestResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitProjectRequestResponse.ProtoReflect.Descriptor instead.
 func (*SubmitProjectRequestResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{18}
+	return file_user_service_proto_rawDescGZIP(), []int{19}
 }
 
 func (x *SubmitProjectRequestResponse) GetRequestId() string {
@@ -1208,17 +1316,16 @@ func (x *SubmitProjectRequestResponse) GetMessage() string {
 type SubmitPullRequestApprovalRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	ProjectName   string                 `protobuf:"bytes,3,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
-	PrUrl         string                 `protobuf:"bytes,4,opt,name=pr_url,json=prUrl,proto3" json:"pr_url,omitempty"`
-	RequesterId   string                 `protobuf:"bytes,5,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	ProjectName   string                 `protobuf:"bytes,2,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
+	PrUrl         string                 `protobuf:"bytes,3,opt,name=pr_url,json=prUrl,proto3" json:"pr_url,omitempty"`
+	RequesterId   string                 `protobuf:"bytes,4,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SubmitPullRequestApprovalRequest) Reset() {
 	*x = SubmitPullRequestApprovalRequest{}
-	mi := &file_user_service_proto_msgTypes[19]
+	mi := &file_user_service_proto_msgTypes[20]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1230,7 +1337,7 @@ func (x *SubmitPullRequestApprovalRequest) String() string {
 func (*SubmitPullRequestApprovalRequest) ProtoMessage() {}
 
 func (x *SubmitPullRequestApprovalRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[19]
+	mi := &file_user_service_proto_msgTypes[20]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1243,19 +1350,12 @@ func (x *SubmitPullRequestApprovalRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitPullRequestApprovalRequest.ProtoReflect.Descriptor instead.
 func (*SubmitPullRequestApprovalRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{19}
+	return file_user_service_proto_rawDescGZIP(), []int{20}
 }
 
 func (x *SubmitPullRequestApprovalRequest) GetTitle() string {
 	if x != nil {
 		return x.Title
-	}
-	return ""
-}
-
-func (x *SubmitPullRequestApprovalRequest) GetDescription() string {
-	if x != nil {
-		return x.Description
 	}
 	return ""
 }
@@ -1291,7 +1391,7 @@ type SubmitPullRequestApprovalResponse struct {
 
 func (x *SubmitPullRequestApprovalResponse) Reset() {
 	*x = SubmitPullRequestApprovalResponse{}
-	mi := &file_user_service_proto_msgTypes[20]
+	mi := &file_user_service_proto_msgTypes[21]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1303,7 +1403,7 @@ func (x *SubmitPullRequestApprovalResponse) String() string {
 func (*SubmitPullRequestApprovalResponse) ProtoMessage() {}
 
 func (x *SubmitPullRequestApprovalResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[20]
+	mi := &file_user_service_proto_msgTypes[21]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1316,7 +1416,7 @@ func (x *SubmitPullRequestApprovalResponse) ProtoReflect() protoreflect.Message 
 
 // Deprecated: Use SubmitPullRequestApprovalResponse.ProtoReflect.Descriptor instead.
 func (*SubmitPullRequestApprovalResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{20}
+	return file_user_service_proto_rawDescGZIP(), []int{21}
 }
 
 func (x *SubmitPullRequestApprovalResponse) GetRequestId() string {
@@ -1336,17 +1436,16 @@ func (x *SubmitPullRequestApprovalResponse) GetMessage() string {
 type SubmitAccessRequestRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Title         string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
-	Description   string                 `protobuf:"bytes,2,opt,name=description,proto3" json:"description,omitempty"`
-	ProjectName   string                 `protobuf:"bytes,3,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
-	Role          string                 `protobuf:"bytes,4,opt,name=role,proto3" json:"role,omitempty"`
-	RequesterId   string                 `protobuf:"bytes,5,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	ProjectName   string                 `protobuf:"bytes,2,opt,name=project_name,json=projectName,proto3" json:"project_name,omitempty"`
+	Role          string                 `protobuf:"bytes,3,opt,name=role,proto3" json:"role,omitempty"`
+	RequesterId   string                 `protobuf:"bytes,4,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *SubmitAccessRequestRequest) Reset() {
 	*x = SubmitAccessRequestRequest{}
-	mi := &file_user_service_proto_msgTypes[21]
+	mi := &file_user_service_proto_msgTypes[22]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1358,7 +1457,7 @@ func (x *SubmitAccessRequestRequest) String() string {
 func (*SubmitAccessRequestRequest) ProtoMessage() {}
 
 func (x *SubmitAccessRequestRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[21]
+	mi := &file_user_service_proto_msgTypes[22]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1371,19 +1470,12 @@ func (x *SubmitAccessRequestRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitAccessRequestRequest.ProtoReflect.Descriptor instead.
 func (*SubmitAccessRequestRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{21}
+	return file_user_service_proto_rawDescGZIP(), []int{22}
 }
 
 func (x *SubmitAccessRequestRequest) GetTitle() string {
 	if x != nil {
 		return x.Title
-	}
-	return ""
-}
-
-func (x *SubmitAccessRequestRequest) GetDescription() string {
-	if x != nil {
-		return x.Description
 	}
 	return ""
 }
@@ -1419,7 +1511,7 @@ type SubmitAccessRequestResponse struct {
 
 func (x *SubmitAccessRequestResponse) Reset() {
 	*x = SubmitAccessRequestResponse{}
-	mi := &file_user_service_proto_msgTypes[22]
+	mi := &file_user_service_proto_msgTypes[23]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1431,7 +1523,7 @@ func (x *SubmitAccessRequestResponse) String() string {
 func (*SubmitAccessRequestResponse) ProtoMessage() {}
 
 func (x *SubmitAccessRequestResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[22]
+	mi := &file_user_service_proto_msgTypes[23]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1444,7 +1536,7 @@ func (x *SubmitAccessRequestResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use SubmitAccessRequestResponse.ProtoReflect.Descriptor instead.
 func (*SubmitAccessRequestResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{22}
+	return file_user_service_proto_rawDescGZIP(), []int{23}
 }
 
 func (x *SubmitAccessRequestResponse) GetRequestId() string {
@@ -1473,7 +1565,7 @@ type GetRequestsRequest struct {
 
 func (x *GetRequestsRequest) Reset() {
 	*x = GetRequestsRequest{}
-	mi := &file_user_service_proto_msgTypes[23]
+	mi := &file_user_service_proto_msgTypes[24]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1485,7 +1577,7 @@ func (x *GetRequestsRequest) String() string {
 func (*GetRequestsRequest) ProtoMessage() {}
 
 func (x *GetRequestsRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[23]
+	mi := &file_user_service_proto_msgTypes[24]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1498,7 +1590,7 @@ func (x *GetRequestsRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRequestsRequest.ProtoReflect.Descriptor instead.
 func (*GetRequestsRequest) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{23}
+	return file_user_service_proto_rawDescGZIP(), []int{24}
 }
 
 func (x *GetRequestsRequest) GetUserId() string {
@@ -1539,7 +1631,7 @@ type GetRequestsResponse struct {
 
 func (x *GetRequestsResponse) Reset() {
 	*x = GetRequestsResponse{}
-	mi := &file_user_service_proto_msgTypes[24]
+	mi := &file_user_service_proto_msgTypes[25]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -1551,7 +1643,7 @@ func (x *GetRequestsResponse) String() string {
 func (*GetRequestsResponse) ProtoMessage() {}
 
 func (x *GetRequestsResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_user_service_proto_msgTypes[24]
+	mi := &file_user_service_proto_msgTypes[25]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -1564,7 +1656,7 @@ func (x *GetRequestsResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRequestsResponse.ProtoReflect.Descriptor instead.
 func (*GetRequestsResponse) Descriptor() ([]byte, []int) {
-	return file_user_service_proto_rawDescGZIP(), []int{24}
+	return file_user_service_proto_rawDescGZIP(), []int{25}
 }
 
 func (x *GetRequestsResponse) GetRequests() []*Request {
@@ -1581,6 +1673,216 @@ func (x *GetRequestsResponse) GetTotal() int32 {
 	return 0
 }
 
+// New messages for approved projects list
+type GetApprovedProjectsListRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	ActiveOnly    bool                   `protobuf:"varint,1,opt,name=active_only,json=activeOnly,proto3" json:"active_only,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetApprovedProjectsListRequest) Reset() {
+	*x = GetApprovedProjectsListRequest{}
+	mi := &file_user_service_proto_msgTypes[26]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetApprovedProjectsListRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetApprovedProjectsListRequest) ProtoMessage() {}
+
+func (x *GetApprovedProjectsListRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_proto_msgTypes[26]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetApprovedProjectsListRequest.ProtoReflect.Descriptor instead.
+func (*GetApprovedProjectsListRequest) Descriptor() ([]byte, []int) {
+	return file_user_service_proto_rawDescGZIP(), []int{26}
+}
+
+func (x *GetApprovedProjectsListRequest) GetActiveOnly() bool {
+	if x != nil {
+		return x.ActiveOnly
+	}
+	return false
+}
+
+type GetApprovedProjectsListResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Projects      []*ApprovedProject     `protobuf:"bytes,1,rep,name=projects,proto3" json:"projects,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetApprovedProjectsListResponse) Reset() {
+	*x = GetApprovedProjectsListResponse{}
+	mi := &file_user_service_proto_msgTypes[27]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetApprovedProjectsListResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetApprovedProjectsListResponse) ProtoMessage() {}
+
+func (x *GetApprovedProjectsListResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_proto_msgTypes[27]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetApprovedProjectsListResponse.ProtoReflect.Descriptor instead.
+func (*GetApprovedProjectsListResponse) Descriptor() ([]byte, []int) {
+	return file_user_service_proto_rawDescGZIP(), []int{27}
+}
+
+func (x *GetApprovedProjectsListResponse) GetProjects() []*ApprovedProject {
+	if x != nil {
+		return x.Projects
+	}
+	return nil
+}
+
+// New messages for contribution permission requests
+type SubmitContributionPermissionRequestRequest struct {
+	state                 protoimpl.MessageState `protogen:"open.v1"`
+	Title                 string                 `protobuf:"bytes,1,opt,name=title,proto3" json:"title,omitempty"`
+	ApprovedProjectId     string                 `protobuf:"bytes,2,opt,name=approved_project_id,json=approvedProjectId,proto3" json:"approved_project_id,omitempty"`
+	BusinessJustification string                 `protobuf:"bytes,3,opt,name=business_justification,json=businessJustification,proto3" json:"business_justification,omitempty"`
+	RequesterId           string                 `protobuf:"bytes,4,opt,name=requester_id,json=requesterId,proto3" json:"requester_id,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
+}
+
+func (x *SubmitContributionPermissionRequestRequest) Reset() {
+	*x = SubmitContributionPermissionRequestRequest{}
+	mi := &file_user_service_proto_msgTypes[28]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitContributionPermissionRequestRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitContributionPermissionRequestRequest) ProtoMessage() {}
+
+func (x *SubmitContributionPermissionRequestRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_proto_msgTypes[28]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitContributionPermissionRequestRequest.ProtoReflect.Descriptor instead.
+func (*SubmitContributionPermissionRequestRequest) Descriptor() ([]byte, []int) {
+	return file_user_service_proto_rawDescGZIP(), []int{28}
+}
+
+func (x *SubmitContributionPermissionRequestRequest) GetTitle() string {
+	if x != nil {
+		return x.Title
+	}
+	return ""
+}
+
+func (x *SubmitContributionPermissionRequestRequest) GetApprovedProjectId() string {
+	if x != nil {
+		return x.ApprovedProjectId
+	}
+	return ""
+}
+
+func (x *SubmitContributionPermissionRequestRequest) GetBusinessJustification() string {
+	if x != nil {
+		return x.BusinessJustification
+	}
+	return ""
+}
+
+func (x *SubmitContributionPermissionRequestRequest) GetRequesterId() string {
+	if x != nil {
+		return x.RequesterId
+	}
+	return ""
+}
+
+type SubmitContributionPermissionRequestResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	RequestId     string                 `protobuf:"bytes,1,opt,name=request_id,json=requestId,proto3" json:"request_id,omitempty"`
+	Message       string                 `protobuf:"bytes,2,opt,name=message,proto3" json:"message,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *SubmitContributionPermissionRequestResponse) Reset() {
+	*x = SubmitContributionPermissionRequestResponse{}
+	mi := &file_user_service_proto_msgTypes[29]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *SubmitContributionPermissionRequestResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*SubmitContributionPermissionRequestResponse) ProtoMessage() {}
+
+func (x *SubmitContributionPermissionRequestResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_user_service_proto_msgTypes[29]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use SubmitContributionPermissionRequestResponse.ProtoReflect.Descriptor instead.
+func (*SubmitContributionPermissionRequestResponse) Descriptor() ([]byte, []int) {
+	return file_user_service_proto_rawDescGZIP(), []int{29}
+}
+
+func (x *SubmitContributionPermissionRequestResponse) GetRequestId() string {
+	if x != nil {
+		return x.RequestId
+	}
+	return ""
+}
+
+func (x *SubmitContributionPermissionRequestResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
 var File_user_service_proto protoreflect.FileDescriptor
 
 const file_user_service_proto_rawDesc = "" +
@@ -1594,7 +1896,19 @@ const file_user_service_proto_rawDesc = "" +
 	"\rlast_activity\x18\x05 \x01(\tR\flastActivity\x12\x10\n" +
 	"\x03url\x18\x06 \x01(\tR\x03url\x12\x18\n" +
 	"\alicense\x18\a \x01(\tR\alicense\x12\x19\n" +
-	"\bowner_id\x18\b \x01(\tR\aownerId\"\x9c\x01\n" +
+	"\bowner_id\x18\b \x01(\tR\aownerId\"\xf4\x02\n" +
+	"\x0fApprovedProject\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
+	"\x04name\x18\x02 \x01(\tR\x04name\x12 \n" +
+	"\vdescription\x18\x03 \x01(\tR\vdescription\x12%\n" +
+	"\x0erepository_url\x18\x04 \x01(\tR\rrepositoryUrl\x12\x18\n" +
+	"\alicense\x18\x05 \x01(\tR\alicense\x12+\n" +
+	"\x11contribution_type\x18\x06 \x01(\tR\x10contributionType\x12-\n" +
+	"\x12maintainer_contact\x18\a \x01(\tR\x11maintainerContact\x12#\n" +
+	"\rapproval_date\x18\b \x01(\tR\fapprovalDate\x12\x1b\n" +
+	"\tis_active\x18\t \x01(\bR\bisActive\x12<\n" +
+	"\x1aallowed_contribution_types\x18\n" +
+	" \x03(\tR\x18allowedContributionTypes\"\xb0\x01\n" +
 	"\x04User\x12!\n" +
 	"\fcorporate_id\x18\x01 \x01(\tR\vcorporateId\x12'\n" +
 	"\x0fgithub_username\x18\x02 \x01(\tR\x0egithubUsername\x12\x12\n" +
@@ -1602,22 +1916,22 @@ const file_user_service_proto_rawDesc = "" +
 	"\n" +
 	"department\x18\x04 \x01(\tR\n" +
 	"department\x12\x14\n" +
-	"\x05email\x18\x05 \x01(\tR\x05email\"\xb1\x02\n" +
+	"\x05email\x18\x05 \x01(\tR\x05email\x12\x12\n" +
+	"\x04role\x18\x06 \x01(\tR\x04role\"\x8f\x02\n" +
 	"\aRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\tR\x02id\x12\x12\n" +
 	"\x04type\x18\x02 \x01(\tR\x04type\x12\x14\n" +
-	"\x05title\x18\x03 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x04 \x01(\tR\vdescription\x12\x16\n" +
-	"\x06status\x18\x05 \x01(\tR\x06status\x12!\n" +
-	"\frequester_id\x18\x06 \x01(\tR\vrequesterId\x12\x1d\n" +
+	"\x05title\x18\x03 \x01(\tR\x05title\x12\x16\n" +
+	"\x06status\x18\x04 \x01(\tR\x06status\x12!\n" +
+	"\frequester_id\x18\x05 \x01(\tR\vrequesterId\x12\x1d\n" +
 	"\n" +
-	"created_at\x18\a \x01(\tR\tcreatedAt\x12!\n" +
-	"\fproject_name\x18\b \x01(\tR\vprojectName\x12\x1f\n" +
-	"\vproject_url\x18\t \x01(\tR\n" +
+	"created_at\x18\x06 \x01(\tR\tcreatedAt\x12!\n" +
+	"\fproject_name\x18\a \x01(\tR\vprojectName\x12\x1f\n" +
+	"\vproject_url\x18\b \x01(\tR\n" +
 	"projectUrl\x12\x18\n" +
-	"\alicense\x18\n" +
-	" \x01(\tR\alicense\x12\x12\n" +
-	"\x04role\x18\v \x01(\tR\x04role\"h\n" +
+	"\alicense\x18\t \x01(\tR\alicense\x12\x12\n" +
+	"\x04role\x18\n" +
+	" \x01(\tR\x04role\"h\n" +
 	"\x1aRegisterContributorRequest\x12!\n" +
 	"\fcorporate_id\x18\x01 \x01(\tR\vcorporateId\x12'\n" +
 	"\x0fgithub_username\x18\x02 \x01(\tR\x0egithubUsername\"7\n" +
@@ -1662,34 +1976,31 @@ const file_user_service_proto_rawDesc = "" +
 	"\bowner_id\x18\x05 \x01(\tR\aownerId\"]\n" +
 	"\x15CreateProjectResponse\x12*\n" +
 	"\aproject\x18\x01 \x01(\v2\x10.backend.ProjectR\aproject\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xb3\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x91\x01\n" +
 	"\x1bSubmitProjectRequestRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x12\x1f\n" +
-	"\vproject_url\x18\x03 \x01(\tR\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12\x1f\n" +
+	"\vproject_url\x18\x02 \x01(\tR\n" +
 	"projectUrl\x12\x18\n" +
-	"\alicense\x18\x04 \x01(\tR\alicense\x12!\n" +
-	"\frequester_id\x18\x05 \x01(\tR\vrequesterId\"W\n" +
+	"\alicense\x18\x03 \x01(\tR\alicense\x12!\n" +
+	"\frequester_id\x18\x04 \x01(\tR\vrequesterId\"W\n" +
 	"\x1cSubmitProjectRequestResponse\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xb7\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x95\x01\n" +
 	" SubmitPullRequestApprovalRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x12!\n" +
-	"\fproject_name\x18\x03 \x01(\tR\vprojectName\x12\x15\n" +
-	"\x06pr_url\x18\x04 \x01(\tR\x05prUrl\x12!\n" +
-	"\frequester_id\x18\x05 \x01(\tR\vrequesterId\"\\\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12!\n" +
+	"\fproject_name\x18\x02 \x01(\tR\vprojectName\x12\x15\n" +
+	"\x06pr_url\x18\x03 \x01(\tR\x05prUrl\x12!\n" +
+	"\frequester_id\x18\x04 \x01(\tR\vrequesterId\"\\\n" +
 	"!SubmitPullRequestApprovalResponse\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x18\n" +
-	"\amessage\x18\x02 \x01(\tR\amessage\"\xae\x01\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage\"\x8c\x01\n" +
 	"\x1aSubmitAccessRequestRequest\x12\x14\n" +
-	"\x05title\x18\x01 \x01(\tR\x05title\x12 \n" +
-	"\vdescription\x18\x02 \x01(\tR\vdescription\x12!\n" +
-	"\fproject_name\x18\x03 \x01(\tR\vprojectName\x12\x12\n" +
-	"\x04role\x18\x04 \x01(\tR\x04role\x12!\n" +
-	"\frequester_id\x18\x05 \x01(\tR\vrequesterId\"V\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12!\n" +
+	"\fproject_name\x18\x02 \x01(\tR\vprojectName\x12\x12\n" +
+	"\x04role\x18\x03 \x01(\tR\x04role\x12!\n" +
+	"\frequester_id\x18\x04 \x01(\tR\vrequesterId\"V\n" +
 	"\x1bSubmitAccessRequestResponse\x12\x1d\n" +
 	"\n" +
 	"request_id\x18\x01 \x01(\tR\trequestId\x12\x18\n" +
@@ -1701,20 +2012,36 @@ const file_user_service_proto_rawDesc = "" +
 	"\x05limit\x18\x04 \x01(\x05R\x05limit\"Y\n" +
 	"\x13GetRequestsResponse\x12,\n" +
 	"\brequests\x18\x01 \x03(\v2\x10.backend.RequestR\brequests\x12\x14\n" +
-	"\x05total\x18\x02 \x01(\x05R\x05total2\x95\x02\n" +
+	"\x05total\x18\x02 \x01(\x05R\x05total\"A\n" +
+	"\x1eGetApprovedProjectsListRequest\x12\x1f\n" +
+	"\vactive_only\x18\x01 \x01(\bR\n" +
+	"activeOnly\"W\n" +
+	"\x1fGetApprovedProjectsListResponse\x124\n" +
+	"\bprojects\x18\x01 \x03(\v2\x18.backend.ApprovedProjectR\bprojects\"\xcc\x01\n" +
+	"*SubmitContributionPermissionRequestRequest\x12\x14\n" +
+	"\x05title\x18\x01 \x01(\tR\x05title\x12.\n" +
+	"\x13approved_project_id\x18\x02 \x01(\tR\x11approvedProjectId\x125\n" +
+	"\x16business_justification\x18\x03 \x01(\tR\x15businessJustification\x12!\n" +
+	"\frequester_id\x18\x04 \x01(\tR\vrequesterId\"f\n" +
+	"+SubmitContributionPermissionRequestResponse\x12\x1d\n" +
+	"\n" +
+	"request_id\x18\x01 \x01(\tR\trequestId\x12\x18\n" +
+	"\amessage\x18\x02 \x01(\tR\amessage2\x95\x02\n" +
 	"\vUserService\x12`\n" +
 	"\x13RegisterContributor\x12#.backend.RegisterContributorRequest\x1a$.backend.RegisterContributorResponse\x12Q\n" +
 	"\x0eGetContributor\x12\x1e.backend.GetContributorRequest\x1a\x1f.backend.GetContributorResponse\x12Q\n" +
-	"\x0eGetUserProfile\x12\x1e.backend.GetUserProfileRequest\x1a\x1f.backend.GetUserProfileResponse2\x8f\x03\n" +
+	"\x0eGetUserProfile\x12\x1e.backend.GetUserProfileRequest\x1a\x1f.backend.GetUserProfileResponse2\xfd\x03\n" +
 	"\x0eProjectService\x12`\n" +
 	"\x13GetAuthoredProjects\x12#.backend.GetAuthoredProjectsRequest\x1a$.backend.GetAuthoredProjectsResponse\x12i\n" +
 	"\x16GetContributedProjects\x12&.backend.GetContributedProjectsRequest\x1a'.backend.GetContributedProjectsResponse\x12`\n" +
 	"\x13GetApprovedProjects\x12#.backend.GetApprovedProjectsRequest\x1a$.backend.GetApprovedProjectsResponse\x12N\n" +
-	"\rCreateProject\x12\x1d.backend.CreateProjectRequest\x1a\x1e.backend.CreateProjectResponse2\x95\x03\n" +
+	"\rCreateProject\x12\x1d.backend.CreateProjectRequest\x1a\x1e.backend.CreateProjectResponse\x12l\n" +
+	"\x17GetApprovedProjectsList\x12'.backend.GetApprovedProjectsListRequest\x1a(.backend.GetApprovedProjectsListResponse2\xa8\x04\n" +
 	"\x0eRequestService\x12c\n" +
 	"\x14SubmitProjectRequest\x12$.backend.SubmitProjectRequestRequest\x1a%.backend.SubmitProjectRequestResponse\x12r\n" +
 	"\x19SubmitPullRequestApproval\x12).backend.SubmitPullRequestApprovalRequest\x1a*.backend.SubmitPullRequestApprovalResponse\x12`\n" +
-	"\x13SubmitAccessRequest\x12#.backend.SubmitAccessRequestRequest\x1a$.backend.SubmitAccessRequestResponse\x12H\n" +
+	"\x13SubmitAccessRequest\x12#.backend.SubmitAccessRequestRequest\x1a$.backend.SubmitAccessRequestResponse\x12\x90\x01\n" +
+	"#SubmitContributionPermissionRequest\x123.backend.SubmitContributionPermissionRequestRequest\x1a4.backend.SubmitContributionPermissionRequestResponse\x12H\n" +
 	"\vGetRequests\x12\x1b.backend.GetRequestsRequest\x1a\x1c.backend.GetRequestsResponseB\x19Z\x17sourcestream/backend/pbb\x06proto3"
 
 var (
@@ -1729,68 +2056,78 @@ func file_user_service_proto_rawDescGZIP() []byte {
 	return file_user_service_proto_rawDescData
 }
 
-var file_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 25)
+var file_user_service_proto_msgTypes = make([]protoimpl.MessageInfo, 30)
 var file_user_service_proto_goTypes = []any{
-	(*Project)(nil),                           // 0: backend.Project
-	(*User)(nil),                              // 1: backend.User
-	(*Request)(nil),                           // 2: backend.Request
-	(*RegisterContributorRequest)(nil),        // 3: backend.RegisterContributorRequest
-	(*RegisterContributorResponse)(nil),       // 4: backend.RegisterContributorResponse
-	(*GetContributorRequest)(nil),             // 5: backend.GetContributorRequest
-	(*GetContributorResponse)(nil),            // 6: backend.GetContributorResponse
-	(*GetUserProfileRequest)(nil),             // 7: backend.GetUserProfileRequest
-	(*GetUserProfileResponse)(nil),            // 8: backend.GetUserProfileResponse
-	(*GetAuthoredProjectsRequest)(nil),        // 9: backend.GetAuthoredProjectsRequest
-	(*GetAuthoredProjectsResponse)(nil),       // 10: backend.GetAuthoredProjectsResponse
-	(*GetContributedProjectsRequest)(nil),     // 11: backend.GetContributedProjectsRequest
-	(*GetContributedProjectsResponse)(nil),    // 12: backend.GetContributedProjectsResponse
-	(*GetApprovedProjectsRequest)(nil),        // 13: backend.GetApprovedProjectsRequest
-	(*GetApprovedProjectsResponse)(nil),       // 14: backend.GetApprovedProjectsResponse
-	(*CreateProjectRequest)(nil),              // 15: backend.CreateProjectRequest
-	(*CreateProjectResponse)(nil),             // 16: backend.CreateProjectResponse
-	(*SubmitProjectRequestRequest)(nil),       // 17: backend.SubmitProjectRequestRequest
-	(*SubmitProjectRequestResponse)(nil),      // 18: backend.SubmitProjectRequestResponse
-	(*SubmitPullRequestApprovalRequest)(nil),  // 19: backend.SubmitPullRequestApprovalRequest
-	(*SubmitPullRequestApprovalResponse)(nil), // 20: backend.SubmitPullRequestApprovalResponse
-	(*SubmitAccessRequestRequest)(nil),        // 21: backend.SubmitAccessRequestRequest
-	(*SubmitAccessRequestResponse)(nil),       // 22: backend.SubmitAccessRequestResponse
-	(*GetRequestsRequest)(nil),                // 23: backend.GetRequestsRequest
-	(*GetRequestsResponse)(nil),               // 24: backend.GetRequestsResponse
+	(*Project)(nil),                                     // 0: backend.Project
+	(*ApprovedProject)(nil),                             // 1: backend.ApprovedProject
+	(*User)(nil),                                        // 2: backend.User
+	(*Request)(nil),                                     // 3: backend.Request
+	(*RegisterContributorRequest)(nil),                  // 4: backend.RegisterContributorRequest
+	(*RegisterContributorResponse)(nil),                 // 5: backend.RegisterContributorResponse
+	(*GetContributorRequest)(nil),                       // 6: backend.GetContributorRequest
+	(*GetContributorResponse)(nil),                      // 7: backend.GetContributorResponse
+	(*GetUserProfileRequest)(nil),                       // 8: backend.GetUserProfileRequest
+	(*GetUserProfileResponse)(nil),                      // 9: backend.GetUserProfileResponse
+	(*GetAuthoredProjectsRequest)(nil),                  // 10: backend.GetAuthoredProjectsRequest
+	(*GetAuthoredProjectsResponse)(nil),                 // 11: backend.GetAuthoredProjectsResponse
+	(*GetContributedProjectsRequest)(nil),               // 12: backend.GetContributedProjectsRequest
+	(*GetContributedProjectsResponse)(nil),              // 13: backend.GetContributedProjectsResponse
+	(*GetApprovedProjectsRequest)(nil),                  // 14: backend.GetApprovedProjectsRequest
+	(*GetApprovedProjectsResponse)(nil),                 // 15: backend.GetApprovedProjectsResponse
+	(*CreateProjectRequest)(nil),                        // 16: backend.CreateProjectRequest
+	(*CreateProjectResponse)(nil),                       // 17: backend.CreateProjectResponse
+	(*SubmitProjectRequestRequest)(nil),                 // 18: backend.SubmitProjectRequestRequest
+	(*SubmitProjectRequestResponse)(nil),                // 19: backend.SubmitProjectRequestResponse
+	(*SubmitPullRequestApprovalRequest)(nil),            // 20: backend.SubmitPullRequestApprovalRequest
+	(*SubmitPullRequestApprovalResponse)(nil),           // 21: backend.SubmitPullRequestApprovalResponse
+	(*SubmitAccessRequestRequest)(nil),                  // 22: backend.SubmitAccessRequestRequest
+	(*SubmitAccessRequestResponse)(nil),                 // 23: backend.SubmitAccessRequestResponse
+	(*GetRequestsRequest)(nil),                          // 24: backend.GetRequestsRequest
+	(*GetRequestsResponse)(nil),                         // 25: backend.GetRequestsResponse
+	(*GetApprovedProjectsListRequest)(nil),              // 26: backend.GetApprovedProjectsListRequest
+	(*GetApprovedProjectsListResponse)(nil),             // 27: backend.GetApprovedProjectsListResponse
+	(*SubmitContributionPermissionRequestRequest)(nil),  // 28: backend.SubmitContributionPermissionRequestRequest
+	(*SubmitContributionPermissionRequestResponse)(nil), // 29: backend.SubmitContributionPermissionRequestResponse
 }
 var file_user_service_proto_depIdxs = []int32{
-	1,  // 0: backend.GetUserProfileResponse.user:type_name -> backend.User
+	2,  // 0: backend.GetUserProfileResponse.user:type_name -> backend.User
 	0,  // 1: backend.GetAuthoredProjectsResponse.projects:type_name -> backend.Project
 	0,  // 2: backend.GetContributedProjectsResponse.projects:type_name -> backend.Project
 	0,  // 3: backend.GetApprovedProjectsResponse.projects:type_name -> backend.Project
 	0,  // 4: backend.CreateProjectResponse.project:type_name -> backend.Project
-	2,  // 5: backend.GetRequestsResponse.requests:type_name -> backend.Request
-	3,  // 6: backend.UserService.RegisterContributor:input_type -> backend.RegisterContributorRequest
-	5,  // 7: backend.UserService.GetContributor:input_type -> backend.GetContributorRequest
-	7,  // 8: backend.UserService.GetUserProfile:input_type -> backend.GetUserProfileRequest
-	9,  // 9: backend.ProjectService.GetAuthoredProjects:input_type -> backend.GetAuthoredProjectsRequest
-	11, // 10: backend.ProjectService.GetContributedProjects:input_type -> backend.GetContributedProjectsRequest
-	13, // 11: backend.ProjectService.GetApprovedProjects:input_type -> backend.GetApprovedProjectsRequest
-	15, // 12: backend.ProjectService.CreateProject:input_type -> backend.CreateProjectRequest
-	17, // 13: backend.RequestService.SubmitProjectRequest:input_type -> backend.SubmitProjectRequestRequest
-	19, // 14: backend.RequestService.SubmitPullRequestApproval:input_type -> backend.SubmitPullRequestApprovalRequest
-	21, // 15: backend.RequestService.SubmitAccessRequest:input_type -> backend.SubmitAccessRequestRequest
-	23, // 16: backend.RequestService.GetRequests:input_type -> backend.GetRequestsRequest
-	4,  // 17: backend.UserService.RegisterContributor:output_type -> backend.RegisterContributorResponse
-	6,  // 18: backend.UserService.GetContributor:output_type -> backend.GetContributorResponse
-	8,  // 19: backend.UserService.GetUserProfile:output_type -> backend.GetUserProfileResponse
-	10, // 20: backend.ProjectService.GetAuthoredProjects:output_type -> backend.GetAuthoredProjectsResponse
-	12, // 21: backend.ProjectService.GetContributedProjects:output_type -> backend.GetContributedProjectsResponse
-	14, // 22: backend.ProjectService.GetApprovedProjects:output_type -> backend.GetApprovedProjectsResponse
-	16, // 23: backend.ProjectService.CreateProject:output_type -> backend.CreateProjectResponse
-	18, // 24: backend.RequestService.SubmitProjectRequest:output_type -> backend.SubmitProjectRequestResponse
-	20, // 25: backend.RequestService.SubmitPullRequestApproval:output_type -> backend.SubmitPullRequestApprovalResponse
-	22, // 26: backend.RequestService.SubmitAccessRequest:output_type -> backend.SubmitAccessRequestResponse
-	24, // 27: backend.RequestService.GetRequests:output_type -> backend.GetRequestsResponse
-	17, // [17:28] is the sub-list for method output_type
-	6,  // [6:17] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	3,  // 5: backend.GetRequestsResponse.requests:type_name -> backend.Request
+	1,  // 6: backend.GetApprovedProjectsListResponse.projects:type_name -> backend.ApprovedProject
+	4,  // 7: backend.UserService.RegisterContributor:input_type -> backend.RegisterContributorRequest
+	6,  // 8: backend.UserService.GetContributor:input_type -> backend.GetContributorRequest
+	8,  // 9: backend.UserService.GetUserProfile:input_type -> backend.GetUserProfileRequest
+	10, // 10: backend.ProjectService.GetAuthoredProjects:input_type -> backend.GetAuthoredProjectsRequest
+	12, // 11: backend.ProjectService.GetContributedProjects:input_type -> backend.GetContributedProjectsRequest
+	14, // 12: backend.ProjectService.GetApprovedProjects:input_type -> backend.GetApprovedProjectsRequest
+	16, // 13: backend.ProjectService.CreateProject:input_type -> backend.CreateProjectRequest
+	26, // 14: backend.ProjectService.GetApprovedProjectsList:input_type -> backend.GetApprovedProjectsListRequest
+	18, // 15: backend.RequestService.SubmitProjectRequest:input_type -> backend.SubmitProjectRequestRequest
+	20, // 16: backend.RequestService.SubmitPullRequestApproval:input_type -> backend.SubmitPullRequestApprovalRequest
+	22, // 17: backend.RequestService.SubmitAccessRequest:input_type -> backend.SubmitAccessRequestRequest
+	28, // 18: backend.RequestService.SubmitContributionPermissionRequest:input_type -> backend.SubmitContributionPermissionRequestRequest
+	24, // 19: backend.RequestService.GetRequests:input_type -> backend.GetRequestsRequest
+	5,  // 20: backend.UserService.RegisterContributor:output_type -> backend.RegisterContributorResponse
+	7,  // 21: backend.UserService.GetContributor:output_type -> backend.GetContributorResponse
+	9,  // 22: backend.UserService.GetUserProfile:output_type -> backend.GetUserProfileResponse
+	11, // 23: backend.ProjectService.GetAuthoredProjects:output_type -> backend.GetAuthoredProjectsResponse
+	13, // 24: backend.ProjectService.GetContributedProjects:output_type -> backend.GetContributedProjectsResponse
+	15, // 25: backend.ProjectService.GetApprovedProjects:output_type -> backend.GetApprovedProjectsResponse
+	17, // 26: backend.ProjectService.CreateProject:output_type -> backend.CreateProjectResponse
+	27, // 27: backend.ProjectService.GetApprovedProjectsList:output_type -> backend.GetApprovedProjectsListResponse
+	19, // 28: backend.RequestService.SubmitProjectRequest:output_type -> backend.SubmitProjectRequestResponse
+	21, // 29: backend.RequestService.SubmitPullRequestApproval:output_type -> backend.SubmitPullRequestApprovalResponse
+	23, // 30: backend.RequestService.SubmitAccessRequest:output_type -> backend.SubmitAccessRequestResponse
+	29, // 31: backend.RequestService.SubmitContributionPermissionRequest:output_type -> backend.SubmitContributionPermissionRequestResponse
+	25, // 32: backend.RequestService.GetRequests:output_type -> backend.GetRequestsResponse
+	20, // [20:33] is the sub-list for method output_type
+	7,  // [7:20] is the sub-list for method input_type
+	7,  // [7:7] is the sub-list for extension type_name
+	7,  // [7:7] is the sub-list for extension extendee
+	0,  // [0:7] is the sub-list for field type_name
 }
 
 func init() { file_user_service_proto_init() }
@@ -1804,7 +2141,7 @@ func file_user_service_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_user_service_proto_rawDesc), len(file_user_service_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   25,
+			NumMessages:   30,
 			NumExtensions: 0,
 			NumServices:   3,
 		},

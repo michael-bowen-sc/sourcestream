@@ -18,7 +18,6 @@ export interface Request {
   id: string;
   type: "project" | "pullrequest" | "access";
   title: string;
-  description: string;
   status: "pending" | "approved" | "rejected" | "in_review";
   projectName?: string;
   createdAt: string;
@@ -130,7 +129,6 @@ export const mockPendingRequests: Request[] = [
     id: "req-1",
     type: "access",
     title: "request muppet access",
-    description: "puppets",
     status: "pending",
     projectName: "the muppets",
     createdAt: "2025-08-22T15:09:47Z",
@@ -139,7 +137,6 @@ export const mockPendingRequests: Request[] = [
     id: "req-2",
     type: "project",
     title: "New Documentation Site",
-    description: "Create a new documentation portal",
     status: "in_review",
     createdAt: "2025-08-20T10:30:00Z",
   },
@@ -147,7 +144,6 @@ export const mockPendingRequests: Request[] = [
     id: "req-3",
     type: "pullrequest",
     title: "Bug fix for authentication",
-    description: "Fix OAuth token refresh issue",
     status: "pending",
     projectName: "Authentication Service",
     createdAt: "2025-08-21T14:15:00Z",

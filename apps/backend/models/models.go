@@ -1,3 +1,4 @@
+// Package models contains the domain data structures persisted in the backend.
 package models
 
 import (
@@ -37,23 +38,40 @@ type Project struct {
 
 // Request represents a request for project access, PR approval, etc.
 type Request struct {
-	ID              string     `json:"id" db:"id"`
-	Type            string     `json:"type" db:"type"`
-	Title           string     `json:"title" db:"title"`
-	Description     string     `json:"description" db:"description"`
-	Status          string     `json:"status" db:"status"`
-	RequesterID     string     `json:"requester_id" db:"requester_id"`
-	ReviewerID      *string    `json:"reviewer_id" db:"reviewer_id"`
-	ProjectID       *string    `json:"project_id" db:"project_id"`
-	ProjectName     string     `json:"project_name" db:"project_name"`
-	ProjectURL      string     `json:"project_url" db:"project_url"`
-	License         string     `json:"license" db:"license"`
-	Role            string     `json:"role" db:"requested_role"`
-	ApprovedAt      *time.Time `json:"approved_at" db:"approved_at"`
-	RejectedAt      *time.Time `json:"rejected_at" db:"rejected_at"`
-	RejectionReason *string    `json:"rejection_reason" db:"rejection_reason"`
-	CreatedAt       time.Time  `json:"created_at" db:"created_at"`
-	UpdatedAt       time.Time  `json:"updated_at" db:"updated_at"`
+	ID                    string     `json:"id" db:"id"`
+	Type                  string     `json:"type" db:"type"`
+	Title                 string     `json:"title" db:"title"`
+	Status                string     `json:"status" db:"status"`
+	RequesterID           string     `json:"requester_id" db:"requester_id"`
+	ReviewerID            *string    `json:"reviewer_id" db:"reviewer_id"`
+	ProjectID             *string    `json:"project_id" db:"project_id"`
+	ProjectName           string     `json:"project_name" db:"project_name"`
+	ProjectURL            string     `json:"project_url" db:"project_url"`
+	License               string     `json:"license" db:"license"`
+	Role                  string     `json:"role" db:"requested_role"`
+	ApprovedProjectID     *string    `json:"approved_project_id" db:"approved_project_id"`
+	BusinessJustification *string    `json:"business_justification" db:"business_justification"`
+	ApprovedAt            *time.Time `json:"approved_at" db:"approved_at"`
+	RejectedAt            *time.Time `json:"rejected_at" db:"rejected_at"`
+	RejectionReason       *string    `json:"rejection_reason" db:"rejection_reason"`
+	CreatedAt             time.Time  `json:"created_at" db:"created_at"`
+	UpdatedAt             time.Time  `json:"updated_at" db:"updated_at"`
+}
+
+// ApprovedProject represents a pre-approved open source project for contributions
+type ApprovedProject struct {
+	ID                       string    `json:"id" db:"id"`
+	Name                     string    `json:"name" db:"name"`
+	Description              string    `json:"description" db:"description"`
+	RepositoryURL            string    `json:"repository_url" db:"repository_url"`
+	License                  string    `json:"license" db:"license"`
+	ContributionType         string    `json:"contribution_type" db:"contribution_type"`
+	MaintainerContact        string    `json:"maintainer_contact" db:"maintainer_contact"`
+	ApprovalDate             time.Time `json:"approval_date" db:"approval_date"`
+	IsActive                 bool      `json:"is_active" db:"is_active"`
+	AllowedContributionTypes []string  `json:"allowed_contribution_types" db:"allowed_contribution_types"`
+	CreatedAt                time.Time `json:"created_at" db:"created_at"`
+	UpdatedAt                time.Time `json:"updated_at" db:"updated_at"`
 }
 
 // ProjectContributor represents the many-to-many relationship between users and projects

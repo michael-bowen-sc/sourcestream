@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   Box,
   Button,
@@ -26,7 +26,6 @@ export type OpenSourceActionType =
 
 export interface OpenSourceFormData {
   title: string;
-  description: string;
   justification?: string;
   projectName?: string;
   repositoryUrl?: string;
@@ -35,6 +34,21 @@ export interface OpenSourceFormData {
   businessImpact?: string;
   timeline?: string;
   securityConsiderations?: string;
+  approvedProjectId?: string;
+  businessJustification?: string;
+}
+
+export interface ApprovedProject {
+  id: string;
+  name: string;
+  description: string;
+  repository_url: string;
+  license: string;
+  contribution_type: string; // CLA, CCLA, DCO
+  maintainer_contact: string;
+  approval_date: string;
+  is_active: boolean;
+  allowed_contribution_types: string[];
 }
 
 interface OpenSourceActionModalProps {
@@ -52,10 +66,140 @@ const OpenSourceActionModal: React.FC<OpenSourceActionModalProps> = ({
 }) => {
   const [formData, setFormData] = useState<OpenSourceFormData>({
     title: "",
-    description: "",
   });
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [approvedProjects, setApprovedProjects] = useState<ApprovedProject[]>(
+    [],
+  );
+  const [loadingProjects, setLoadingProjects] = useState(false);
+
+  // Fetch approved projects when modal opens for permission requests
+  useEffect(() => {
+    if (isOpen && actionType === "permission") {
+      fetchApprovedProjects();
+    }
+  }, [isOpen, actionType]);
+
+  const fetchApprovedProjects = async () => {
+    setLoadingProjects(true);
+    try {
+      // TODO: Replace with actual gRPC API call to GetApprovedProjectsList
+      // For now using mock data that matches the backend service response
+      const mockProjects: ApprovedProject[] = [
+        {
+          id: "1",
+          name: "React",
+          description: "A JavaScript library for building user interfaces",
+          repository_url: "https://github.com/facebook/react",
+          license: "MIT",
+          contribution_type: "CLA",
+          maintainer_contact: "react-team@meta.com",
+          approval_date: "2024-01-15T00:00:00Z",
+          is_active: true,
+          allowed_contribution_types: [
+            "bug-fix",
+            "feature",
+            "documentation",
+            "testing",
+          ],
+        },
+        {
+          id: "2",
+          name: "Vue.js",
+          description: "The Progressive JavaScript Framework",
+          repository_url: "https://github.com/vuejs/vue",
+          license: "MIT",
+          contribution_type: "DCO",
+          maintainer_contact: "team@vuejs.org",
+          approval_date: "2024-01-10T00:00:00Z",
+          is_active: true,
+          allowed_contribution_types: [
+            "bug-fix",
+            "feature",
+            "documentation",
+            "testing",
+            "maintenance",
+          ],
+        },
+        {
+          id: "3",
+          name: "Angular",
+          description: "Deliver web apps with confidence",
+          repository_url: "https://github.com/angular/angular",
+          license: "MIT",
+          contribution_type: "CLA",
+          maintainer_contact: "angular-team@google.com",
+          approval_date: "2024-01-20T00:00:00Z",
+          is_active: true,
+          allowed_contribution_types: [
+            "bug-fix",
+            "feature",
+            "documentation",
+            "testing",
+          ],
+        },
+        {
+          id: "4",
+          name: "Node.js",
+          description: "Node.js JavaScript runtime",
+          repository_url: "https://github.com/nodejs/node",
+          license: "MIT",
+          contribution_type: "DCO",
+          maintainer_contact: "nodejs-team@nodejs.org",
+          approval_date: "2024-01-25T00:00:00Z",
+          is_active: true,
+          allowed_contribution_types: [
+            "bug-fix",
+            "feature",
+            "documentation",
+            "testing",
+            "maintenance",
+          ],
+        },
+        {
+          id: "5",
+          name: "TypeScript",
+          description: "TypeScript is a superset of JavaScript",
+          repository_url: "https://github.com/microsoft/TypeScript",
+          license: "Apache-2.0",
+          contribution_type: "CLA",
+          maintainer_contact: "typescript@microsoft.com",
+          approval_date: "2024-02-01T00:00:00Z",
+          is_active: true,
+          allowed_contribution_types: [
+            "bug-fix",
+            "feature",
+            "documentation",
+            "testing",
+          ],
+        },
+        {
+          id: "6",
+          name: "Kubernetes",
+          description: "Production-Grade Container Scheduling and Management",
+          repository_url: "https://github.com/kubernetes/kubernetes",
+          license: "Apache-2.0",
+          contribution_type: "CLA",
+          maintainer_contact: "kubernetes-dev@googlegroups.com",
+          approval_date: "2024-02-05T00:00:00Z",
+          is_active: true,
+          allowed_contribution_types: [
+            "bug-fix",
+            "feature",
+            "documentation",
+            "testing",
+            "maintenance",
+          ],
+        },
+      ];
+      setApprovedProjects(mockProjects);
+    } catch (error) {
+      console.error("Failed to fetch approved projects:", error);
+    } finally {
+      setLoadingProjects(false);
+    }
+  };
 
   const handleInputChange = (
     field: keyof OpenSourceFormData,
@@ -74,12 +218,17 @@ const OpenSourceActionModal: React.FC<OpenSourceActionModalProps> = ({
       newErrors.title = "Title is required";
     }
 
-    if (!formData.description.trim()) {
-      newErrors.description = "Description is required";
-    }
-
     // Action-specific validation
     switch (actionType) {
+      case "permission":
+        if (!formData.approvedProjectId?.trim()) {
+          newErrors.approvedProjectId = "Please select an approved project";
+        }
+        if (!formData.businessJustification?.trim()) {
+          newErrors.businessJustification =
+            "Business justification is required";
+        }
+        break;
       case "create":
         if (!formData.projectName?.trim()) {
           newErrors.projectName = "Project name is required";
@@ -126,7 +275,6 @@ const OpenSourceActionModal: React.FC<OpenSourceActionModalProps> = ({
   const handleClose = () => {
     setFormData({
       title: "",
-      description: "",
     });
     setErrors({});
     onClose();
@@ -229,59 +377,102 @@ const OpenSourceActionModal: React.FC<OpenSourceActionModalProps> = ({
               )}
             </Box>
 
-            {/* Description Field */}
-            <Box>
-              <Text fontSize="sm" fontWeight="medium" mb={2}>
-                Description *
-              </Text>
-              <Textarea
-                rows={4}
-                placeholder="Provide detailed information about your request"
-                value={formData.description}
-                onChange={(e) =>
-                  handleInputChange("description", e.target.value)
-                }
-                borderColor={errors.description ? "red.300" : "gray.200"}
-              />
-              {errors.description && (
-                <Text fontSize="sm" color="red.500" mt={1}>
-                  {errors.description}
-                </Text>
-              )}
-            </Box>
-
             {/* Action-specific fields */}
             {actionType === "permission" && (
               <>
                 <Box>
                   <Text fontSize="sm" fontWeight="medium" mb={2}>
-                    Business Justification
+                    Approved Project *
                   </Text>
-                  <Textarea
-                    rows={3}
-                    placeholder="Explain the business value and need for open source contributions"
-                    value={formData.justification || ""}
-                    onChange={(e) =>
-                      handleInputChange("justification", e.target.value)
+                  <select
+                    style={{
+                      width: "100%",
+                      padding: "8px",
+                      borderRadius: "6px",
+                      border: `1px solid ${errors.approvedProjectId ? "#FC8181" : "#E2E8F0"}`,
+                      fontSize: "14px",
+                      backgroundColor: loadingProjects ? "#F7FAFC" : "white",
+                    }}
+                    value={formData.approvedProjectId || ""}
+                    onChange={(e: React.ChangeEvent<HTMLSelectElement>) =>
+                      handleInputChange("approvedProjectId", e.target.value)
                     }
-                  />
+                    disabled={loadingProjects}
+                  >
+                    <option value="">
+                      {loadingProjects
+                        ? "Loading projects..."
+                        : "Select an approved project"}
+                    </option>
+                    {approvedProjects.map((project) => (
+                      <option key={project.id} value={project.id}>
+                        {project.name} ({project.contribution_type}) -{" "}
+                        {project.license}
+                      </option>
+                    ))}
+                  </select>
+                  {errors.approvedProjectId && (
+                    <Text fontSize="sm" color="red.500" mt={1}>
+                      {errors.approvedProjectId}
+                    </Text>
+                  )}
+                  {formData.approvedProjectId && (
+                    <Box mt={2} p={3} bg="gray.50" borderRadius="md">
+                      {(() => {
+                        const selectedProject = approvedProjects.find(
+                          (p) => p.id === formData.approvedProjectId,
+                        );
+                        return selectedProject ? (
+                          <VStack align="start" gap="1">
+                            <Text fontSize="sm" fontWeight="medium">
+                              {selectedProject.name}
+                            </Text>
+                            <Text fontSize="xs" color="gray.600">
+                              {selectedProject.description}
+                            </Text>
+                            <Text fontSize="xs">
+                              <strong>Repository:</strong>{" "}
+                              {selectedProject.repository_url}
+                            </Text>
+                            <Text fontSize="xs">
+                              <strong>License:</strong>{" "}
+                              {selectedProject.license} |{" "}
+                              <strong>Contribution Type:</strong>{" "}
+                              {selectedProject.contribution_type}
+                            </Text>
+                            <Text fontSize="xs">
+                              <strong>Allowed Contributions:</strong>{" "}
+                              {selectedProject.allowed_contribution_types.join(
+                                ", ",
+                              )}
+                            </Text>
+                          </VStack>
+                        ) : null;
+                      })()}
+                    </Box>
+                  )}
                 </Box>
 
                 <Box>
                   <Text fontSize="sm" fontWeight="medium" mb={2}>
-                    Security Considerations
+                    Business Justification *
                   </Text>
                   <Textarea
-                    rows={2}
-                    placeholder="Describe any security considerations or compliance requirements"
-                    value={formData.securityConsiderations || ""}
+                    rows={4}
+                    placeholder="Explain the business value and need for contributing to this open source project. Include how this contribution aligns with company goals and benefits."
+                    value={formData.businessJustification || ""}
                     onChange={(e) =>
-                      handleInputChange(
-                        "securityConsiderations",
-                        e.target.value,
-                      )
+                      handleInputChange("businessJustification", e.target.value)
+                    }
+                    borderColor={
+                      errors.businessJustification ? "red.300" : "gray.200"
                     }
                   />
+                  {errors.businessJustification && (
+                    <Text fontSize="sm" color="red.500" mt={1}>
+                      {errors.businessJustification}
+                    </Text>
+                  )}
                 </Box>
               </>
             )}

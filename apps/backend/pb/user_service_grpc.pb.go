@@ -201,10 +201,11 @@ var UserService_ServiceDesc = grpc.ServiceDesc{
 }
 
 const (
-	ProjectService_GetAuthoredProjects_FullMethodName    = "/backend.ProjectService/GetAuthoredProjects"
-	ProjectService_GetContributedProjects_FullMethodName = "/backend.ProjectService/GetContributedProjects"
-	ProjectService_GetApprovedProjects_FullMethodName    = "/backend.ProjectService/GetApprovedProjects"
-	ProjectService_CreateProject_FullMethodName          = "/backend.ProjectService/CreateProject"
+	ProjectService_GetAuthoredProjects_FullMethodName     = "/backend.ProjectService/GetAuthoredProjects"
+	ProjectService_GetContributedProjects_FullMethodName  = "/backend.ProjectService/GetContributedProjects"
+	ProjectService_GetApprovedProjects_FullMethodName     = "/backend.ProjectService/GetApprovedProjects"
+	ProjectService_CreateProject_FullMethodName           = "/backend.ProjectService/CreateProject"
+	ProjectService_GetApprovedProjectsList_FullMethodName = "/backend.ProjectService/GetApprovedProjectsList"
 )
 
 // ProjectServiceClient is the client API for ProjectService service.
@@ -217,6 +218,7 @@ type ProjectServiceClient interface {
 	GetContributedProjects(ctx context.Context, in *GetContributedProjectsRequest, opts ...grpc.CallOption) (*GetContributedProjectsResponse, error)
 	GetApprovedProjects(ctx context.Context, in *GetApprovedProjectsRequest, opts ...grpc.CallOption) (*GetApprovedProjectsResponse, error)
 	CreateProject(ctx context.Context, in *CreateProjectRequest, opts ...grpc.CallOption) (*CreateProjectResponse, error)
+	GetApprovedProjectsList(ctx context.Context, in *GetApprovedProjectsListRequest, opts ...grpc.CallOption) (*GetApprovedProjectsListResponse, error)
 }
 
 type projectServiceClient struct {
@@ -267,6 +269,16 @@ func (c *projectServiceClient) CreateProject(ctx context.Context, in *CreateProj
 	return out, nil
 }
 
+func (c *projectServiceClient) GetApprovedProjectsList(ctx context.Context, in *GetApprovedProjectsListRequest, opts ...grpc.CallOption) (*GetApprovedProjectsListResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetApprovedProjectsListResponse)
+	err := c.cc.Invoke(ctx, ProjectService_GetApprovedProjectsList_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ProjectServiceServer is the server API for ProjectService service.
 // All implementations must embed UnimplementedProjectServiceServer
 // for forward compatibility.
@@ -277,6 +289,7 @@ type ProjectServiceServer interface {
 	GetContributedProjects(context.Context, *GetContributedProjectsRequest) (*GetContributedProjectsResponse, error)
 	GetApprovedProjects(context.Context, *GetApprovedProjectsRequest) (*GetApprovedProjectsResponse, error)
 	CreateProject(context.Context, *CreateProjectRequest) (*CreateProjectResponse, error)
+	GetApprovedProjectsList(context.Context, *GetApprovedProjectsListRequest) (*GetApprovedProjectsListResponse, error)
 	mustEmbedUnimplementedProjectServiceServer()
 }
 
@@ -298,6 +311,9 @@ func (UnimplementedProjectServiceServer) GetApprovedProjects(context.Context, *G
 }
 func (UnimplementedProjectServiceServer) CreateProject(context.Context, *CreateProjectRequest) (*CreateProjectResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method CreateProject not implemented")
+}
+func (UnimplementedProjectServiceServer) GetApprovedProjectsList(context.Context, *GetApprovedProjectsListRequest) (*GetApprovedProjectsListResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetApprovedProjectsList not implemented")
 }
 func (UnimplementedProjectServiceServer) mustEmbedUnimplementedProjectServiceServer() {}
 func (UnimplementedProjectServiceServer) testEmbeddedByValue()                        {}
@@ -392,6 +408,24 @@ func _ProjectService_CreateProject_Handler(srv interface{}, ctx context.Context,
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ProjectService_GetApprovedProjectsList_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetApprovedProjectsListRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ProjectServiceServer).GetApprovedProjectsList(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ProjectService_GetApprovedProjectsList_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ProjectServiceServer).GetApprovedProjectsList(ctx, req.(*GetApprovedProjectsListRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ProjectService_ServiceDesc is the grpc.ServiceDesc for ProjectService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -415,16 +449,21 @@ var ProjectService_ServiceDesc = grpc.ServiceDesc{
 			MethodName: "CreateProject",
 			Handler:    _ProjectService_CreateProject_Handler,
 		},
+		{
+			MethodName: "GetApprovedProjectsList",
+			Handler:    _ProjectService_GetApprovedProjectsList_Handler,
+		},
 	},
 	Streams:  []grpc.StreamDesc{},
 	Metadata: "user_service.proto",
 }
 
 const (
-	RequestService_SubmitProjectRequest_FullMethodName      = "/backend.RequestService/SubmitProjectRequest"
-	RequestService_SubmitPullRequestApproval_FullMethodName = "/backend.RequestService/SubmitPullRequestApproval"
-	RequestService_SubmitAccessRequest_FullMethodName       = "/backend.RequestService/SubmitAccessRequest"
-	RequestService_GetRequests_FullMethodName               = "/backend.RequestService/GetRequests"
+	RequestService_SubmitProjectRequest_FullMethodName                = "/backend.RequestService/SubmitProjectRequest"
+	RequestService_SubmitPullRequestApproval_FullMethodName           = "/backend.RequestService/SubmitPullRequestApproval"
+	RequestService_SubmitAccessRequest_FullMethodName                 = "/backend.RequestService/SubmitAccessRequest"
+	RequestService_SubmitContributionPermissionRequest_FullMethodName = "/backend.RequestService/SubmitContributionPermissionRequest"
+	RequestService_GetRequests_FullMethodName                         = "/backend.RequestService/GetRequests"
 )
 
 // RequestServiceClient is the client API for RequestService service.
@@ -436,6 +475,7 @@ type RequestServiceClient interface {
 	SubmitProjectRequest(ctx context.Context, in *SubmitProjectRequestRequest, opts ...grpc.CallOption) (*SubmitProjectRequestResponse, error)
 	SubmitPullRequestApproval(ctx context.Context, in *SubmitPullRequestApprovalRequest, opts ...grpc.CallOption) (*SubmitPullRequestApprovalResponse, error)
 	SubmitAccessRequest(ctx context.Context, in *SubmitAccessRequestRequest, opts ...grpc.CallOption) (*SubmitAccessRequestResponse, error)
+	SubmitContributionPermissionRequest(ctx context.Context, in *SubmitContributionPermissionRequestRequest, opts ...grpc.CallOption) (*SubmitContributionPermissionRequestResponse, error)
 	GetRequests(ctx context.Context, in *GetRequestsRequest, opts ...grpc.CallOption) (*GetRequestsResponse, error)
 }
 
@@ -477,6 +517,16 @@ func (c *requestServiceClient) SubmitAccessRequest(ctx context.Context, in *Subm
 	return out, nil
 }
 
+func (c *requestServiceClient) SubmitContributionPermissionRequest(ctx context.Context, in *SubmitContributionPermissionRequestRequest, opts ...grpc.CallOption) (*SubmitContributionPermissionRequestResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(SubmitContributionPermissionRequestResponse)
+	err := c.cc.Invoke(ctx, RequestService_SubmitContributionPermissionRequest_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *requestServiceClient) GetRequests(ctx context.Context, in *GetRequestsRequest, opts ...grpc.CallOption) (*GetRequestsResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetRequestsResponse)
@@ -496,6 +546,7 @@ type RequestServiceServer interface {
 	SubmitProjectRequest(context.Context, *SubmitProjectRequestRequest) (*SubmitProjectRequestResponse, error)
 	SubmitPullRequestApproval(context.Context, *SubmitPullRequestApprovalRequest) (*SubmitPullRequestApprovalResponse, error)
 	SubmitAccessRequest(context.Context, *SubmitAccessRequestRequest) (*SubmitAccessRequestResponse, error)
+	SubmitContributionPermissionRequest(context.Context, *SubmitContributionPermissionRequestRequest) (*SubmitContributionPermissionRequestResponse, error)
 	GetRequests(context.Context, *GetRequestsRequest) (*GetRequestsResponse, error)
 	mustEmbedUnimplementedRequestServiceServer()
 }
@@ -515,6 +566,9 @@ func (UnimplementedRequestServiceServer) SubmitPullRequestApproval(context.Conte
 }
 func (UnimplementedRequestServiceServer) SubmitAccessRequest(context.Context, *SubmitAccessRequestRequest) (*SubmitAccessRequestResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method SubmitAccessRequest not implemented")
+}
+func (UnimplementedRequestServiceServer) SubmitContributionPermissionRequest(context.Context, *SubmitContributionPermissionRequestRequest) (*SubmitContributionPermissionRequestResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method SubmitContributionPermissionRequest not implemented")
 }
 func (UnimplementedRequestServiceServer) GetRequests(context.Context, *GetRequestsRequest) (*GetRequestsResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetRequests not implemented")
@@ -594,6 +648,24 @@ func _RequestService_SubmitAccessRequest_Handler(srv interface{}, ctx context.Co
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RequestService_SubmitContributionPermissionRequest_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(SubmitContributionPermissionRequestRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RequestServiceServer).SubmitContributionPermissionRequest(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RequestService_SubmitContributionPermissionRequest_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RequestServiceServer).SubmitContributionPermissionRequest(ctx, req.(*SubmitContributionPermissionRequestRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _RequestService_GetRequests_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetRequestsRequest)
 	if err := dec(in); err != nil {
@@ -630,6 +702,10 @@ var RequestService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SubmitAccessRequest",
 			Handler:    _RequestService_SubmitAccessRequest_Handler,
+		},
+		{
+			MethodName: "SubmitContributionPermissionRequest",
+			Handler:    _RequestService_SubmitContributionPermissionRequest_Handler,
 		},
 		{
 			MethodName: "GetRequests",
