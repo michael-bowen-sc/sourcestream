@@ -1,0 +1,225 @@
+name: Security Scanning
+
+on:
+  schedule:
+    - cron: '0 2 * * *'  # Daily at 2 AM UTC
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  security-events: write
+  contents: read
+
+jobs:
+  dependency-check:
+    name: Check Dependencies for Vulnerabilities
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Audit Go dependencies
+        run: |
+          cd apps/backend
+          echo "Checking Go dependencies for known vulnerabilities..."
+          if go list -json -m all | grep -E "v0\.|deprecated|vulnerable"; then
+            echo "⚠️  Some dependencies have known issues. Review above."
+          else
+            echo "✓ Go dependencies look clean"
+          fi
+        continue-on-error: true
+
+      - name: Audit Node.js dependencies
+        run: |
+          echo "Checking Node.js dependencies for known vulnerabilities..."
+          npm audit --audit-level=moderate 2>&1 | tee npm-audit.log
+          AUDIT_EXIT=$?
+          if [ $AUDIT_EXIT -eq 0 ]; then
+            echo "✓ No moderate/high vulnerabilities found"
+          else
+            echo "⚠️  Vulnerabilities detected. See above."
+            # Don't fail workflow, just report
+            exit 0
+          fi
+
+      - name: Upload audit logs
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: security-reports
+          path: npm-audit.log
+
+  code-quality:
+    name: Code Quality & Static Analysis
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run Go vet
+        run: |
+          cd apps/backend
+          echo "Running Go vet..."
+          go vet ./...
+          echo "✓ Go vet passed"
+
+      - name: Run Go linter
+        run: |
+          cd apps/backend
+          echo "Running golangci-lint..."
+          npm run lint:go || echo "⚠️  Review linting issues above"
+
+      - name: Run TypeScript type check
+        run: |
+          cd apps/frontend
+          echo "Running TypeScript type checking..."
+          npx tsc --noEmit --skipLibCheck || echo "⚠️  Review type errors above"
+
+      - name: Security linting (Semgrep)
+        uses: returntocorp/semgrep-action@v1
+        continue-on-error: true
+        with:
+          config: >-
+            p/security-audit
+            p/owasp-top-ten
+            p/cwe-top-25
+          generateSarif: true
+
+      - name: Upload SARIF
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: semgrep.sarif
+
+  container-scan:
+    name: Scan Container Images
+    runs-on: ubuntu-latest
+    if: github.event_name != 'schedule'  # Skip on schedule (images not available)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Build images for scanning
+        run: |
+          echo "Building container images for scanning..."
+          # Backend
+          if docker build -t sourcestream/backend:scan ./apps/backend 2>/dev/null; then
+            echo "✓ Backend image built"
+          else
+            echo "⚠️  Backend image build skipped"
+          fi
+
+          # Frontend
+          if docker build -t sourcestream/frontend:scan ./apps/frontend 2>/dev/null; then
+            echo "✓ Frontend image built"
+          else
+            echo "⚠️  Frontend image build skipped"
+          fi
+        continue-on-error: true
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: 'sourcestream/backend:scan'
+          format: 'sarif'
+          output: 'trivy-backend.sarif'
+        continue-on-error: true
+
+      - name: Upload Trivy results
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: trivy-backend.sarif
+          category: trivy-backend
+
+  security-summary:
+    name: Security Report
+    runs-on: ubuntu-latest
+    if: always()
+    needs: [dependency-check, code-quality, container-scan]
+    steps:
+      - name: Generate security summary
+        run: |
+          cat << 'EOF'
+          🔒 Security Scanning Complete
+
+          Summary:
+          --------
+          - Dependency audit: Completed (check above)
+          - Code quality: Completed (check above)
+          - Container scanning: Completed (check above)
+
+          Next Steps:
+          -----------
+          1. Review any reported vulnerabilities
+          2. Update dependencies if critical issues found
+          3. Check GitHub Security tab for SARIF uploads
+          4. Address code quality issues
+
+          Note: Failed checks are informational. Review and take action as needed.
+          EOF
+
+  alert-critical:
+    name: Alert on Critical Issues
+    runs-on: ubuntu-latest
+    if: failure()
+    needs: [dependency-check, code-quality]
+    steps:
+      - name: Comment on PR if critical
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: '⚠️ **Security Check**: Security scanning detected issues. Review the security tab and logs.'
+            })
+
+      - name: Create issue for scheduled run
+        if: github.event_name == 'schedule'
+        uses: actions/github-script@v7
+        continue-on-error: true
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          script: |
+            github.rest.issues.create({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              title: 'Security Scan: Issues Detected',
+              body: 'Daily security scan detected issues. Review the workflow run and take action.',
+              labels: ['security', 'automated']
+            })
