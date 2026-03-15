@@ -1,0 +1,152 @@
+name: Kubernetes Validation
+
+on:
+  pull_request:
+    paths:
+      - 'apps/kubernetes/**'
+      - 'apps/backend/**'
+      - 'apps/frontend/**'
+      - '.devcontainer/**'
+      - 'scripts/k8s/**'
+      - '.github/workflows/k8s-validate.yml'
+  workflow_dispatch:
+    inputs:
+      backend_image:
+        description: 'Backend image URI'
+        required: false
+        default: 'ghcr.io/michael-bowen-sc/sourcestream/backend:latest'
+      frontend_image:
+        description: 'Frontend image URI'
+        required: false
+        default: 'ghcr.io/michael-bowen-sc/sourcestream/frontend:latest'
+
+jobs:
+  validate-k8s:
+    name: Validate Kubernetes Deployment
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Set up Kind
+        uses: helm/kind-action@v1.8.0
+        with:
+          cluster_name: sourcestream
+          config: .devcontainer/kind-config.yaml
+          version: v0.20.0
+
+      - name: Set up kubectl
+        uses: azure/setup-kubectl@v3
+        with:
+          version: v1.28.0
+
+      - name: Verify Kubernetes cluster
+        run: |
+          echo "🔍 Cluster Information:"
+          kubectl cluster-info
+          echo ""
+          echo "📊 Nodes:"
+          kubectl get nodes
+          echo ""
+          echo "✓ Cluster is ready"
+
+      - name: Create namespace
+        run: |
+          kubectl create namespace sourcestream-staging --dry-run=client -o yaml | kubectl apply -f -
+          kubectl get namespaces
+
+      - name: Apply Kubernetes manifests
+        run: |
+          echo "📦 Applying manifests..."
+          kubectl apply -f apps/kubernetes/namespace.yaml
+          kubectl apply -f apps/kubernetes/backend-deployment.yaml
+          kubectl apply -f apps/kubernetes/frontend-deployment.yaml
+          kubectl apply -f apps/kubernetes/services.yaml
+          echo "✓ Manifests applied"
+
+      - name: Verify deployments
+        run: |
+          echo "⏳ Waiting for deployments (timeout: 5m)..."
+          echo ""
+          echo "Backend deployment:"
+          kubectl rollout status deployment/backend -n sourcestream-staging --timeout=5m
+          echo "✓ Backend ready"
+          echo ""
+          echo "Frontend deployment:"
+          kubectl rollout status deployment/frontend -n sourcestream-staging --timeout=5m
+          echo "✓ Frontend ready"
+
+      - name: Check deployment status
+        if: success()
+        run: |
+          echo "📊 Deployment Status:"
+          echo "===================="
+          echo ""
+          echo "Deployments:"
+          kubectl get deployments -n sourcestream-staging
+          echo ""
+          echo "Pods:"
+          kubectl get pods -n sourcestream-staging
+          echo ""
+          echo "Services:"
+          kubectl get services -n sourcestream-staging
+          echo ""
+
+      - name: Run health checks
+        if: success()
+        run: |
+          echo "🏥 Running health checks..."
+          echo ""
+
+          # Wait a bit for services to stabilize
+          sleep 10
+
+          # Check backend
+          echo "Backend health check:"
+          BACKEND_POD=$(kubectl get pod -n sourcestream-staging -l app=backend -o jsonpath='{.items[0].metadata.name}')
+          if [ -n "$BACKEND_POD" ]; then
+            echo "  Pod: $BACKEND_POD"
+            kubectl get pod $BACKEND_POD -n sourcestream-staging
+          else
+            echo "  ⚠️ No backend pods found"
+          fi
+          echo ""
+
+          # Check frontend
+          echo "Frontend health check:"
+          FRONTEND_POD=$(kubectl get pod -n sourcestream-staging -l app=frontend -o jsonpath='{.items[0].metadata.name}')
+          if [ -n "$FRONTEND_POD" ]; then
+            echo "  Pod: $FRONTEND_POD"
+            kubectl get pod $FRONTEND_POD -n sourcestream-staging
+          else
+            echo "  ⚠️ No frontend pods found"
+          fi
+
+      - name: Generate report
+        if: always()
+        run: |
+          echo "📋 Kubernetes Validation Report"
+          echo "==============================="
+          echo ""
+          echo "✅ Workflow: Kubernetes Validation"
+          echo "✅ Status: ${{ job.status }}"
+          echo ""
+          echo "Manifest Validation:"
+          kubectl apply -f apps/kubernetes/namespace.yaml --dry-run=client -o yaml > /dev/null && echo "  ✓ namespace.yaml"
+          kubectl apply -f apps/kubernetes/backend-deployment.yaml --dry-run=client -o yaml > /dev/null && echo "  ✓ backend-deployment.yaml"
+          kubectl apply -f apps/kubernetes/frontend-deployment.yaml --dry-run=client -o yaml > /dev/null && echo "  ✓ frontend-deployment.yaml"
+          kubectl apply -f apps/kubernetes/services.yaml --dry-run=client -o yaml > /dev/null && echo "  ✓ services.yaml"
+          echo ""
+          echo "Deployment Status:"
+          kubectl get all -n sourcestream-staging 2>/dev/null || echo "  (namespace not ready)"
+
+      - name: Cleanup
+        if: always()
+        run: |
+          echo "🧹 Cleaning up..."
+          kubectl delete namespace sourcestream-staging --ignore-not-found || true
+          echo "✓ Cleanup complete"

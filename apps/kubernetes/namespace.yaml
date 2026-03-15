@@ -1,0 +1,9 @@
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: sourcestream-staging
+  labels:
+    environment: staging
+    managed-by: sourcestream
+  annotations:
+    description: "SourceStream staging environment for testing"

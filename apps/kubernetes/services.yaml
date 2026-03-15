@@ -1,0 +1,44 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: backend
+  namespace: sourcestream-staging
+  labels:
+    app: backend
+spec:
+  type: ClusterIP
+  ports:
+    - name: grpc
+      port: 50051
+      targetPort: grpc
+      protocol: TCP
+    - name: http-gateway
+      port: 8080
+      targetPort: http-gateway
+      protocol: TCP
+  selector:
+    app: backend
+    component: api
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend
+  namespace: sourcestream-staging
+  labels:
+    app: frontend
+spec:
+  type: LoadBalancer
+  ports:
+    - name: http
+      port: 80
+      targetPort: http
+      protocol: TCP
+  selector:
+    app: frontend
+    component: web
+  sessionAffinity: ClientIP
+  sessionAffinityConfig:
+    clientIP:
+      timeoutSeconds: 10800
