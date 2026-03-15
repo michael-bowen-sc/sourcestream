@@ -1,0 +1,52 @@
+name: Reusable Frontend Test Workflow
+
+on:
+  workflow_call:
+    inputs:
+      node-version:
+        description: 'Node version file to use'
+        required: false
+        default: '.nvmrc'
+        type: string
+      coverage-threshold:
+        description: 'Minimum coverage percentage required'
+        required: false
+        default: '70'
+        type: string
+
+jobs:
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: ${{ inputs.node-version }}
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run tests
+        run: cd apps/frontend && npm test -- --coverage --testPathIgnorePatterns=integration
+
+      - name: Check coverage
+        run: |
+          cd apps/frontend
+          COVERAGE=$(npm test -- --coverage --coverageReporters=json-summary --testPathIgnorePatterns=integration 2>&1 | grep -o '"lines": *[0-9.]*' | grep -o '[0-9.]*' | head -1)
+          THRESHOLD=${{ inputs.coverage-threshold }}
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+            echo "❌ Frontend coverage ${COVERAGE}% is below ${THRESHOLD}% threshold"
+            exit 1
+          fi
+          echo "✓ Frontend coverage ${COVERAGE}% meets ${THRESHOLD}% threshold"
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./apps/frontend/coverage/coverage-final.json
+          flags: frontend
+          fail_ci_if_error: false
