@@ -5,6 +5,14 @@ import { TextEncoder, TextDecoder } from "util";
 global.TextEncoder = TextEncoder;
 global.TextDecoder = TextDecoder as any;
 
+// Polyfill for structuredClone (needed for Chakra UI)
+if (typeof global.structuredClone === "undefined") {
+  global.structuredClone = (obj: any) => {
+    if (obj === undefined) return undefined;
+    return JSON.parse(JSON.stringify(obj));
+  };
+}
+
 // Mock environment variables
 process.env.VITE_GRPC_URL = "http://localhost:8080";
 

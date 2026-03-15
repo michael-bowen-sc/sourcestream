@@ -1,7 +1,7 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useRequests } from "../useRequests";
 import { server } from "../../test/mocks/server";
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 
 // Setup MSW server
 beforeAll(() => server.listen());
@@ -38,8 +38,9 @@ describe("useRequests", () => {
   it("handles loading state during fetch", async () => {
     // Mock slow response
     server.use(
-      rest.get("http://localhost:8080/api/requests", (req, res, ctx) => {
-        return res(ctx.delay(100), ctx.status(200), ctx.json([]));
+      http.get("http://localhost:8080/api/requests", async () => {
+        await new Promise(resolve => setTimeout(resolve, 100));
+        return HttpResponse.json([], { status: 200 });
       }),
     );
 
@@ -54,8 +55,8 @@ describe("useRequests", () => {
 
   it("handles fetch errors", async () => {
     server.use(
-      rest.get("http://localhost:8080/api/requests", (req, res, ctx) => {
-        return res(ctx.status(500), ctx.json({ error: "Server error" }));
+      http.get("http://localhost:8080/api/requests", () => {
+        return HttpResponse.json({ error: "Server error" }, { status: 500 });
       }),
     );
 
@@ -104,10 +105,10 @@ describe("useRequests", () => {
 
   it("handles submission errors", async () => {
     server.use(
-      rest.post(
+      http.post(
         "http://localhost:8080/api/submit-project-request",
-        (req, res, ctx) => {
-          return res(ctx.status(400), ctx.json({ error: "Bad request" }));
+        () => {
+          return HttpResponse.json({ error: "Bad request" }, { status: 400 });
         },
       ),
     );
@@ -139,20 +140,17 @@ describe("useRequests", () => {
 
     // Mock updated response
     server.use(
-      rest.get("http://localhost:8080/api/requests", (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
-            {
-              id: "req-1",
-              type: "project",
-              title: "Updated Project Request",
-              status: "approved",
-              projectName: "Test Project",
-              createdAt: "2024-01-01T00:00:00Z",
-            },
-          ]),
-        );
+      http.get("http://localhost:8080/api/requests", () => {
+        return HttpResponse.json([
+          {
+            id: "req-1",
+            type: "project",
+            title: "Updated Project Request",
+            status: "approved",
+            projectName: "Test Project",
+            createdAt: "2024-01-01T00:00:00Z",
+          },
+        ], { status: 200 });
       }),
     );
 
@@ -174,28 +172,25 @@ describe("useRequests", () => {
 
     // Mock updated response after submission
     server.use(
-      rest.get("http://localhost:8080/api/requests", (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
-            {
-              id: "req-1",
-              type: "project",
-              title: "Test Project Request",
-              status: "pending",
-              projectName: "Test Project",
-              createdAt: "2024-01-01T00:00:00Z",
-            },
-            {
-              id: "req-2",
-              type: "project",
-              title: "New Submitted Request",
-              status: "pending",
-              projectName: "New Project",
-              createdAt: "2024-01-02T00:00:00Z",
-            },
-          ]),
-        );
+      http.get("http://localhost:8080/api/requests", () => {
+        return HttpResponse.json([
+          {
+            id: "req-1",
+            type: "project",
+            title: "Test Project Request",
+            status: "pending",
+            projectName: "Test Project",
+            createdAt: "2024-01-01T00:00:00Z",
+          },
+          {
+            id: "req-2",
+            type: "project",
+            title: "New Submitted Request",
+            status: "pending",
+            projectName: "New Project",
+            createdAt: "2024-01-02T00:00:00Z",
+          },
+        ], { status: 200 });
       }),
     );
 

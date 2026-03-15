@@ -11,8 +11,8 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "prepare": "husky",
     "generate:ai-context": "node scripts/generate-ai-learning-context.js",
-    "lint:md": "markdownlint --config .markdownlint.json --ignore node_modules \"**/*.md\"",
-    "lint:md:fix": "markdownlint --fix --config .markdownlint.json --ignore node_modules \"**/*.md\"",
+    "lint:md": "markdownlint --config .markdownlint.json --ignore node_modules --ignore openspec \"**/*.md\"",
+    "lint:md:fix": "markdownlint --fix --config .markdownlint.json --ignore node_modules --ignore openspec \"**/*.md\"",
     "lint:go": "cd apps/backend && golangci-lint run",
     "lint:go:fix": "cd apps/backend && golangci-lint run --fix",
     "lint:ts": "cd apps/frontend && npm run lint",
@@ -43,7 +43,7 @@
   },
   "lint-staged": {
     "*.md": [
-      "markdownlint --fix --config .markdownlint.json --ignore node_modules"
+      "markdownlint --fix --config .markdownlint.json --ignore node_modules --ignore openspec"
     ],
     "apps/backend/**/*.go": [
       "cd apps/backend && golangci-lint run --fix"

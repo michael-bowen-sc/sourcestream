@@ -1,43 +1,31 @@
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 
 export const handlers = [
   // Mock API endpoints for testing
-  rest.post(
+  http.post(
     "http://localhost:8080/api/submit-project-request",
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json({ success: true, id: "mock-request-id" }),
-      );
+    () => {
+      return HttpResponse.json({ success: true, id: "mock-request-id" }, { status: 200 });
     },
   ),
 
-  rest.get("http://localhost:8080/api/requests", (req, res, ctx) => {
-    const userId = req.url.searchParams.get("userId");
-    const status = req.url.searchParams.get("status");
-
-    return res(
-      ctx.status(200),
-      ctx.json([
-        {
-          id: "req-1",
-          type: "project",
-          title: "Test Project Request",
-          status: "pending",
-          projectName: "Test Project",
-          createdAt: "2024-01-01T00:00:00Z",
-        },
-      ]),
-    );
+  http.get("http://localhost:8080/api/requests", () => {
+    return HttpResponse.json([
+      {
+        id: "req-1",
+        type: "project",
+        title: "Test Project Request",
+        status: "pending",
+        projectName: "Test Project",
+        createdAt: "2024-01-01T00:00:00Z",
+      },
+    ], { status: 200 });
   }),
 
-  rest.post(
+  http.post(
     "http://localhost:8080/api/submit-access-request",
-    (req, res, ctx) => {
-      return res(
-        ctx.status(200),
-        ctx.json({ success: true, id: "mock-access-id" }),
-      );
+    () => {
+      return HttpResponse.json({ success: true, id: "mock-access-id" }, { status: 200 });
     },
   ),
 ];

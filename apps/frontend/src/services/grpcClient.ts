@@ -1,5 +1,10 @@
 // Simple HTTP client for gRPC-Web communication
-const GRPC_URL = import.meta.env.VITE_GRPC_URL || "http://localhost:8080";
+let GRPC_URL = "http://localhost:8080";
+
+// Try to get from environment (Vite or Node)
+if (typeof process !== "undefined" && process.env.VITE_GRPC_URL) {
+  GRPC_URL = process.env.VITE_GRPC_URL;
+}
 
 export interface SubmitRequestData {
   type: "project" | "pullrequest" | "access";

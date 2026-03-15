@@ -1,5 +1,7 @@
 # SourceStream
 
+[![Pull Request Validation](https://github.com/michael-bowen-sc/sourcestream/actions/workflows/on-pull-request.yml/badge.svg?branch=main)](https://github.com/michael-bowen-sc/sourcestream/actions/workflows/on-pull-request.yml) [![Security Scanning](https://github.com/michael-bowen-sc/sourcestream/actions/workflows/scheduled-security.yml/badge.svg)](https://github.com/michael-bowen-sc/sourcestream/actions/workflows/scheduled-security.yml)
+
 SourceStream is a comprehensive platform designed to streamline and enhance the management of OSPO supported activities, policies and procedures. It offers robust tools for onboarding, cataloging, and reporting, ensuring seamless integration and workflow management.
 
 ## Features
@@ -136,7 +138,7 @@ npm install
 npm run dev
 ```
 
-Frontend will be available at: `http://localhost:5175`
+Frontend will be available at: `http://localhost:5173` (Vite's default port, or check console for the actual port)
 
 ### 4. Verify Setup
 
@@ -154,7 +156,7 @@ Frontend will be available at: `http://localhost:5175`
      -d '{"user_id": "550e8400-e29b-41d4-a716-446655440001"}'
    ```
 
-3. **Frontend**: Open browser to `http://localhost:5175` and verify dashboard loads
+3. **Frontend**: Open browser to `http://localhost:5173 (or the port shown in console output)` and verify dashboard loads
 
 ## Environment Configuration
 
@@ -203,8 +205,17 @@ go test -cover ./...
 go test ./services/
 ```
 
+## Documentation
+
+- **[CI/CD Automation](docs/ci-cd.md)** - GitHub Actions workflows and automated testing pipeline
+- **[Deployment Process](docs/deployment.md)** - Staging and production deployment procedures
+- **[Architecture](docs/architecture.md)** - System design, components, and Mermaid diagrams
+- **[AI-Pairing Guidelines](docs/AI-PAIRING.md)** - AI-human collaboration best practices
+- **[Project Conventions](openspec/project.md)** - Code style and naming standards
+
 ## Recent Updates
 
+- **CI/CD Automation**: Added GitHub Actions workflows (PR validation, automated testing, staging deployment)
 - **Comprehensive Testing Suite**: Added unit, integration, and component tests with Jest and Go testing
 - **Form Validation**: Implemented robust client-side validation with error handling
 - **Backend API Integration**: Connected frontend forms to backend services with real-time updates

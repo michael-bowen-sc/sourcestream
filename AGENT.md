@@ -1,6 +1,8 @@
-# Gemini Project Guidelines
+# AI Assistant Project Guidelines
 
-This document provides guidelines for the Gemini AI to follow when working on this project.
+This document provides guidelines for AI assistants to follow when working on this project.
+
+**Note:** This document is superseded by `openspec/AGENTS.md` which provides the authoritative specification-driven development workflow. For most development tasks, refer to that document instead. This file is retained for historical reference of project conventions.
 
 ## Project Overview
 

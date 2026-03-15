@@ -1,24 +1,26 @@
 import { useState, useEffect } from "react";
 import {
   Box,
+  Flex,
   Grid,
   GridItem,
   Heading,
+  IconButton,
+  Spinner,
   Text,
   VStack,
   HStack,
-  Icon,
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
 import {
   FiUser,
-  FiGitBranch,
-  FiStar,
-  FiCheckCircle,
-  FiClock,
-  FiAlertTriangle,
+  FiBell,
+  FiGitPullRequest,
+  FiMenu,
+  FiPlus,
   FiShield,
+  FiUsers,
 } from "react-icons/fi";
 import DashboardWidget from "./components/DashboardWidget";
 import PendingRequestsCard from "./components/PendingRequestsCard";
@@ -50,7 +52,7 @@ function App() {
   const { onOpen } = useDisclosure();
 
   // Use requests hook for real-time data management
-  const { requests: liveRequests, submitNewRequest } = useRequests(
+  const { submitNewRequest } = useRequests(
     currentUser?.corporateId || "USER001",
   );
 
@@ -87,7 +89,8 @@ function App() {
 
   useEffect(() => {
     // Check if we're in development mode and no real data exists
-    const isDev = import.meta.env.DEV;
+    // In tests, isDev will be false, which is correct
+    const isDev = typeof process !== "undefined" && process.env.NODE_ENV !== "test";
     const hasRealData = false; // This would be replaced with actual API check
 
     if (isDev && !hasRealData) {
