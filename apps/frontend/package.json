@@ -6,6 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "tsc -b && vite build",
+    "build:analyze": "tsc -b && vite build && open dist/stats.html || xdg-open dist/stats.html",
     "lint": "eslint .",
     "preview": "vite preview",
     "test": "jest",
@@ -49,6 +50,8 @@
     "jest": "^29.7.0",
     "jest-environment-jsdom": "^29.7.0",
     "msw": "^2.0.0",
+    "rollup-plugin-visualizer": "^5.12.0",
+    "terser": "^5.46.0",
     "typescript": "~5.8.3",
     "typescript-eslint": "^8.34.1",
     "vite": "^7.0.0"
