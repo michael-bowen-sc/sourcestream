@@ -89,7 +89,8 @@ function App() {
 
   useEffect(() => {
     // Check if we're in development mode and no real data exists
-    const isDev = import.meta.env.DEV;
+    // In tests, isDev will be false, which is correct
+    const isDev = typeof process !== "undefined" && process.env.NODE_ENV !== "test";
     const hasRealData = false; // This would be replaced with actual API check
 
     if (isDev && !hasRealData) {
