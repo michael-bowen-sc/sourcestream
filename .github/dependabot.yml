@@ -1,0 +1,99 @@
+version: 2
+updates:
+  # Frontend npm dependencies
+  - package-ecosystem: "npm"
+    directory: "/apps/frontend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "03:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "michael-bowen-sc"
+    assignees:
+      - "michael-bowen-sc"
+    labels:
+      - "dependencies"
+      - "frontend"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-scope: "frontend"
+      include: "scope"
+    allow:
+      - dependency-type: "all"
+    ignore:
+      # Ignore major version bumps for stability
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
+    # Group updates
+    groups:
+      react:
+        patterns:
+          - "react*"
+      testing:
+        patterns:
+          - "@testing-library/*"
+          - "jest*"
+      build:
+        patterns:
+          - "vite*"
+          - "@vitejs/*"
+          - "webpack*"
+
+  # Root package.json (monorepo tools)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "04:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "michael-bowen-sc"
+    labels:
+      - "dependencies"
+      - "monorepo"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-scope: "root"
+      include: "scope"
+
+  # Go dependencies in backend
+  - package-ecosystem: "gomod"
+    directory: "/apps/backend"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "05:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "michael-bowen-sc"
+    assignees:
+      - "michael-bowen-sc"
+    labels:
+      - "dependencies"
+      - "backend"
+    commit-message:
+      prefix: "chore(deps)"
+      prefix-scope: "backend"
+      include: "scope"
+    allow:
+      - dependency-type: "all"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "06:00"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "michael-bowen-sc"
+    labels:
+      - "dependencies"
+      - "ci-cd"
+    commit-message:
+      prefix: "chore(ci)"
+      prefix-scope: "actions"
+      include: "scope"

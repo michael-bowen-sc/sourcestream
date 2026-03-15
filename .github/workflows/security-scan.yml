@@ -1,0 +1,175 @@
+name: Security Scan
+
+on:
+  # Run on every merge to main
+  push:
+    branches: [main]
+    paths:
+      - 'apps/backend/**'
+      - 'apps/frontend/**'
+      - '.github/workflows/security-scan.yml'
+  # Run daily at 2 AM UTC
+  schedule:
+    - cron: '0 2 * * *'
+  # Manual trigger
+  workflow_dispatch:
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  # Scan dependencies for vulnerabilities
+  dependency-check:
+    name: Dependency Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: '.nvmrc'
+          cache: 'npm'
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: '1.23'
+          cache: true
+
+      - name: Install dependencies
+        run: npm ci --legacy-peer-deps
+
+      - name: Run npm audit
+        id: npm-audit
+        run: |
+          echo "Running npm security audit..."
+          npm audit --json > npm-audit-report.json || true
+          cat npm-audit-report.json
+
+      - name: Check for critical npm vulnerabilities
+        run: |
+          critical_count=$(jq '.metadata.vulnerabilities.critical // 0' npm-audit-report.json)
+          high_count=$(jq '.metadata.vulnerabilities.high // 0' npm-audit-report.json)
+
+          echo "Critical vulnerabilities: $critical_count"
+          echo "High vulnerabilities: $high_count"
+
+          if [ "$critical_count" -gt 0 ]; then
+            echo "❌ Critical vulnerabilities found in npm dependencies"
+            exit 1
+          fi
+
+      - name: Run Go vulnerability check
+        working-directory: ./apps/backend
+        run: |
+          go install github.com/golang/vuln/cmd/govulncheck@latest
+          govulncheck ./... || true
+
+  # Build and scan Docker images
+  image-scan:
+    name: Image Vulnerability Scan
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+      security-events: write
+    strategy:
+      matrix:
+        image:
+          - name: backend
+            context: ./apps/backend
+            dockerfile: ./apps/backend/Dockerfile
+          - name: frontend
+            context: ./apps/frontend
+            dockerfile: ./apps/frontend/Dockerfile
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Build image locally
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.image.context }}
+          file: ${{ matrix.image.dockerfile }}
+          load: true
+          tags: |
+            sourcestream-${{ matrix.image.name }}:${{ github.sha }}
+            sourcestream-${{ matrix.image.name }}:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+
+      - name: Run Trivy vulnerability scanner
+        uses: aquasecurity/trivy-action@master
+        with:
+          image-ref: sourcestream-${{ matrix.image.name }}:${{ github.sha }}
+          format: 'sarif'
+          output: ${{ matrix.image.name }}-trivy.sarif
+          severity: 'CRITICAL,HIGH'
+          exit-code: '1'  # Fail on vulnerabilities
+
+      - name: Upload Trivy results to GitHub Security
+        uses: github/codeql-action/upload-sarif@v2
+        if: always()
+        with:
+          sarif_file: ${{ matrix.image.name }}-trivy.sarif
+          category: trivy-${{ matrix.image.name }}
+
+      - name: Run Snyk vulnerability scanner
+        uses: snyk/actions/docker@master
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+        with:
+          image: sourcestream-${{ matrix.image.name }}:${{ github.sha }}
+          args: --severity-threshold=high
+
+      - name: Publish scan results
+        if: always()
+        run: |
+          echo "## 📊 Image Scan Results for ${{ matrix.image.name }}"
+          echo ""
+          echo "Image: sourcestream-${{ matrix.image.name }}:${{ github.sha }}"
+          echo "Scan Status: ${{ job.status }}"
+          echo ""
+          echo "Details in Security tab → Code scanning alerts"
+
+  # Generate security report
+  security-report:
+    name: Security Report
+    runs-on: ubuntu-latest
+    needs: [dependency-check, image-scan]
+    if: always()
+    permissions:
+      contents: read
+    steps:
+      - name: Generate report
+        run: |
+          echo "✅ Security Scan Complete"
+          echo ""
+          echo "Summary:"
+          echo "- Dependency audit: ${{ needs.dependency-check.result }}"
+          echo "- Image scan: ${{ needs.image-scan.result }}"
+
+      - name: Send Slack notification
+        uses: slackapi/slack-github-action@v1
+        if: always()
+        with:
+          webhook-url: ${{ secrets.SLACK_WEBHOOK_URL }}
+          payload: |
+            {
+              "text": "🔒 Security Scan Complete",
+              "blocks": [
+                {
+                  "type": "section",
+                  "text": {
+                    "type": "mrkdwn",
+                    "text": "*Security Scan Results*\n*Dependency Check*: ${{ needs.dependency-check.result }}\n*Image Scan*: ${{ needs.image-scan.result }}\n<${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}|View Details>"
+                  }
+                }
+              ]
+            }
+        env:
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
