@@ -1,24 +1,26 @@
 import { useState, useEffect } from "react";
 import {
   Box,
+  Flex,
   Grid,
   GridItem,
   Heading,
+  IconButton,
+  Spinner,
   Text,
   VStack,
   HStack,
-  Icon,
   Button,
   useDisclosure,
 } from "@chakra-ui/react";
 import {
   FiUser,
-  FiGitBranch,
-  FiStar,
-  FiCheckCircle,
-  FiClock,
-  FiAlertTriangle,
+  FiBell,
+  FiGitPullRequest,
+  FiMenu,
+  FiPlus,
   FiShield,
+  FiUsers,
 } from "react-icons/fi";
 import DashboardWidget from "./components/DashboardWidget";
 import PendingRequestsCard from "./components/PendingRequestsCard";
@@ -50,7 +52,7 @@ function App() {
   const { onOpen } = useDisclosure();
 
   // Use requests hook for real-time data management
-  const { requests: liveRequests, submitNewRequest } = useRequests(
+  const { submitNewRequest } = useRequests(
     currentUser?.corporateId || "USER001",
   );
 

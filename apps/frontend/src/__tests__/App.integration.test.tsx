@@ -1,9 +1,8 @@
-import React from "react";
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import { ChakraProvider } from "@chakra-ui/react";
+import { ChakraProvider, defaultSystem } from "@chakra-ui/react";
 import App from "../App";
 import { server } from "../test/mocks/server";
-import { rest } from "msw";
+import { http, HttpResponse } from "msw";
 
 // Setup MSW server
 beforeAll(() => server.listen());
@@ -11,7 +10,9 @@ afterEach(() => server.resetHandlers());
 afterAll(() => server.close());
 
 const renderWithChakra = (component: React.ReactElement) => {
-  return render(<ChakraProvider>{component}</ChakraProvider>);
+  return render(
+    <ChakraProvider value={defaultSystem}>{component}</ChakraProvider>,
+  );
 };
 
 describe("App Integration Tests", () => {
@@ -43,19 +44,18 @@ describe("App Integration Tests", () => {
   it("submits request form and updates dashboard", async () => {
     // Mock successful submission and updated requests list
     server.use(
-      rest.post(
+      http.post(
         "http://localhost:8080/api/submit-project-request",
-        (req, res, ctx) => {
-          return res(
-            ctx.status(200),
-            ctx.json({ success: true, id: "new-request-id" }),
+        () => {
+          return HttpResponse.json(
+            { success: true, id: "new-request-id" },
+            { status: 200 },
           );
         },
       ),
-      rest.get("http://localhost:8080/api/requests", (req, res, ctx) => {
-        return res(
-          ctx.status(200),
-          ctx.json([
+      http.get("http://localhost:8080/api/requests", () => {
+        return HttpResponse.json(
+          [
             {
               id: "req-1",
               type: "project",
@@ -72,7 +72,8 @@ describe("App Integration Tests", () => {
               projectName: "New Test Project",
               createdAt: "2024-01-02T00:00:00Z",
             },
-          ]),
+          ],
+          { status: 200 },
         );
       }),
     );
@@ -128,10 +129,13 @@ describe("App Integration Tests", () => {
   it("handles form submission errors gracefully", async () => {
     // Mock failed submission
     server.use(
-      rest.post(
+      http.post(
         "http://localhost:8080/api/submit-project-request",
-        (req, res, ctx) => {
-          return res(ctx.status(500), ctx.json({ error: "Server error" }));
+        () => {
+          return HttpResponse.json(
+            { error: "Server error" },
+            { status: 500 },
+          );
         },
       ),
     );

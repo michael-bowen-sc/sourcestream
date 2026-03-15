@@ -12,12 +12,6 @@ import {
   Text,
 } from "@chakra-ui/react";
 import { FiFolder, FiGitPullRequest, FiKey, FiX } from "react-icons/fi";
-import {
-  validateProjectRequest,
-  validateAccessRequest,
-  validatePullRequestRequest,
-  type ValidationError,
-} from "../utils/validation";
 
 export interface RequestFormData {
   type: "project" | "pullrequest" | "access";
