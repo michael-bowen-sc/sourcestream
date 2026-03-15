@@ -1,0 +1,87 @@
+name: Reusable Backend Test Workflow
+
+on:
+  workflow_call:
+    inputs:
+      go-version:
+        description: 'Go version to use'
+        required: false
+        default: '1.23'
+        type: string
+      coverage-threshold:
+        description: 'Minimum coverage percentage required'
+        required: false
+        default: '60'
+        type: string
+
+jobs:
+  test-backend:
+    name: Test Backend
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:14-alpine
+        env:
+          POSTGRES_DB: sourcestream_test
+          POSTGRES_USER: sourcestream_user
+          POSTGRES_PASSWORD: password
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v4
+        with:
+          go-version: ${{ inputs.go-version }}
+          cache: true
+
+      - name: Wait for PostgreSQL
+        run: |
+          until pg_isready -h localhost -p 5432 -U sourcestream_user; do
+            sleep 1
+          done
+        env:
+          PGPASSWORD: password
+
+      - name: Run database migrations
+        run: |
+          cd apps/backend
+          PGPASSWORD=password psql -h localhost -U sourcestream_user -d sourcestream_test -f migrations/001_initial_schema.sql || true
+          PGPASSWORD=password psql -h localhost -U sourcestream_user -d sourcestream_test -f migrations/002_requests.sql || true
+          PGPASSWORD=password psql -h localhost -U sourcestream_user -d sourcestream_test -f migrations/003_approved_projects.sql || true
+        continue-on-error: true
+
+      - name: Run tests
+        run: cd apps/backend && go test -v -coverprofile=coverage.out ./...
+        env:
+          DB_HOST: localhost
+          DB_PORT: 5432
+          DB_USER: sourcestream_user
+          DB_PASSWORD: password
+          DB_NAME: sourcestream_test
+          DB_SSLMODE: disable
+
+      - name: Check coverage
+        run: |
+          cd apps/backend
+          COVERAGE=$(go tool cover -func=coverage.out | tail -1 | awk '{print $NF}' | sed 's/%//')
+          THRESHOLD=${{ inputs.coverage-threshold }}
+          if (( $(echo "$COVERAGE < $THRESHOLD" | bc -l) )); then
+            echo "❌ Backend coverage ${COVERAGE}% is below ${THRESHOLD}% threshold"
+            exit 1
+          fi
+          echo "✓ Backend coverage ${COVERAGE}% meets ${THRESHOLD}% threshold"
+
+      - name: Upload coverage
+        uses: codecov/codecov-action@v4
+        with:
+          files: ./apps/backend/coverage.out
+          flags: backend
+          fail_ci_if_error: false

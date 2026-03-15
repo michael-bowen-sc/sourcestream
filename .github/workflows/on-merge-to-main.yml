@@ -9,15 +9,16 @@ env:
   IMAGE_NAME: ${{ github.repository }}
 
 jobs:
-  build-images:
-    name: Build & Push Docker Images
+  # Build Docker images with improved caching
+  build-backend:
+    name: Build Backend Image
     runs-on: ubuntu-latest
     permissions:
       contents: read
       packages: write
     outputs:
-      backend-image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ github.sha }}
-      frontend-image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.sha }}
+      image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ github.sha }}
+      image-latest: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:latest
     steps:
       - uses: actions/checkout@v4
 
@@ -32,20 +33,10 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Generate Backend image metadata
-        id: meta-backend
+        id: meta
         uses: docker/metadata-action@v5
         with:
           images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
-          tags: |
-            type=sha,prefix=
-            type=ref,event=branch
-            type=raw,value=latest,enable={{is_default_branch}}
-
-      - name: Generate Frontend image metadata
-        id: meta-frontend
-        uses: docker/metadata-action@v5
-        with:
-          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
           tags: |
             type=sha,prefix=
             type=ref,event=branch
@@ -57,10 +48,44 @@ jobs:
           context: ./apps/backend
           file: ./apps/backend/Dockerfile
           push: true
-          tags: ${{ steps.meta-backend.outputs.tags }}
-          labels: ${{ steps.meta-backend.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
+
+  build-frontend:
+    name: Build Frontend Image
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    outputs:
+      image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.sha }}
+      image-latest: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Frontend image metadata
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
+          tags: |
+            type=sha,prefix=
+            type=ref,event=branch
+            type=raw,value=latest,enable={{is_default_branch}}
 
       - name: Build and push Frontend image
         uses: docker/build-push-action@v5
@@ -68,15 +93,18 @@ jobs:
           context: ./apps/frontend
           file: ./apps/frontend/Dockerfile
           push: true
-          tags: ${{ steps.meta-frontend.outputs.tags }}
-          labels: ${{ steps.meta-frontend.outputs.labels }}
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          build-args: |
+            BUILDKIT_INLINE_CACHE=1
 
-  verify-images:
-    name: Verify Docker Images
+  # Verify images in parallel
+  verify-backend:
+    name: Verify Backend Image
     runs-on: ubuntu-latest
-    needs: build-images
+    needs: build-backend
     permissions:
       contents: read
       packages: read
@@ -92,53 +120,86 @@ jobs:
 
       - name: Verify Backend image
         run: |
-          docker pull ${{ needs.build-images.outputs.backend-image }}
-          echo "✓ Backend image verified: ${{ needs.build-images.outputs.backend-image }}"
+          docker pull ${{ needs.build-backend.outputs.image }}
+          echo "✓ Backend image verified: ${{ needs.build-backend.outputs.image }}"
+
+          # Get image info
+          docker inspect ${{ needs.build-backend.outputs.image }} | jq '.[0].Architecture, .[0].Os'
+
+  verify-frontend:
+    name: Verify Frontend Image
+    runs-on: ubuntu-latest
+    needs: build-frontend
+    permissions:
+      contents: read
+      packages: read
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify Frontend image
         run: |
-          docker pull ${{ needs.build-images.outputs.frontend-image }}
-          echo "✓ Frontend image verified: ${{ needs.build-images.outputs.frontend-image }}"
+          docker pull ${{ needs.build-frontend.outputs.image }}
+          echo "✓ Frontend image verified: ${{ needs.build-frontend.outputs.image }}"
 
-  deployment-status:
+          # Get image info
+          docker inspect ${{ needs.build-frontend.outputs.image }} | jq '.[0].Architecture, .[0].Os'
+
+  # Generate deployment summary
+  deployment-summary:
     name: Deployment Summary
     runs-on: ubuntu-latest
     if: always()
-    needs: [build-images, verify-images]
+    needs: [build-backend, build-frontend, verify-backend, verify-frontend]
     steps:
       - name: Generate deployment summary
         env:
-          BACKEND_IMAGE: ${{ needs.build-images.outputs.backend-image }}
-          FRONTEND_IMAGE: ${{ needs.build-images.outputs.frontend-image }}
+          BACKEND_IMAGE: ${{ needs.build-backend.outputs.image }}
+          FRONTEND_IMAGE: ${{ needs.build-frontend.outputs.image }}
+          BUILD_BACKEND_STATUS: ${{ needs.build-backend.result }}
+          BUILD_FRONTEND_STATUS: ${{ needs.build-frontend.result }}
+          VERIFY_BACKEND_STATUS: ${{ needs.verify-backend.result }}
+          VERIFY_FRONTEND_STATUS: ${{ needs.verify-frontend.result }}
         run: |
-          cat << 'EOF'
-          ✅ Docker Images Built & Pushed to GHCR
+          echo "📋 Deployment Status Summary"
+          echo "=========================================="
+          echo ""
 
-          Image Details:
-          --------
-          Backend:  ${{ env.BACKEND_IMAGE }}
-          Frontend: ${{ env.FRONTEND_IMAGE }}
-          Registry: ghcr.io/${{ github.repository }}
-
-          Available Tags:
-          --------
-          - ${{ github.sha }} (commit SHA)
-          - latest (if on main branch)
-          - main (branch name)
-
-          Next Steps:
-          --------
-          1. Configure Kubernetes cluster access (if not done):
-             - Add K8S_KUBECONFIG or K8S_TOKEN to GitHub Secrets
-
-          2. Create staging deployment script:
-             - scripts/deploy/staging.sh
-
-          3. Uncomment deployment job in this workflow
-
-          See: docs/deployment.md for detailed configuration
-
-          View Images:
-          --------
-          https://github.com/${{ github.repository }}/pkgs/container
-          EOF
+          # Check if all jobs succeeded
+          if [[ "$BUILD_BACKEND_STATUS" == "success" ]] && \
+             [[ "$BUILD_FRONTEND_STATUS" == "success" ]] && \
+             [[ "$VERIFY_BACKEND_STATUS" == "success" ]] && \
+             [[ "$VERIFY_FRONTEND_STATUS" == "success" ]]; then
+            echo "✅ All Docker images built and verified successfully"
+            echo ""
+            echo "Image Details:"
+            echo "--------"
+            echo "Backend:  $BACKEND_IMAGE"
+            echo "Frontend: $FRONTEND_IMAGE"
+            echo ""
+            echo "Available Tags:"
+            echo "--------"
+            echo "- ${{ github.sha }} (commit SHA)"
+            echo "- latest (main branch)"
+            echo "- main (branch name)"
+            echo ""
+            echo "Registry: ghcr.io/${{ github.repository }}"
+            echo ""
+            echo "View Images:"
+            echo "--------"
+            echo "https://github.com/${{ github.repository }}/pkgs/container"
+          else
+            echo "❌ One or more build/verify jobs failed"
+            echo ""
+            echo "Build Backend:   $BUILD_BACKEND_STATUS"
+            echo "Build Frontend:  $BUILD_FRONTEND_STATUS"
+            echo "Verify Backend:  $VERIFY_BACKEND_STATUS"
+            echo "Verify Frontend: $VERIFY_FRONTEND_STATUS"
+            exit 1
+          fi
