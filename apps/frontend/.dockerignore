@@ -1,0 +1,72 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.circleci
+
+# Documentation
+*.md
+docs/
+README.md
+
+# Local development
+.env
+.env.local
+.env.*.local
+.DS_Store
+Thumbs.db
+
+# Node
+node_modules/
+npm-debug.log
+yarn-error.log
+pnpm-debug.log
+
+# Build
+dist/
+build/
+
+# Testing
+coverage/
+*.test.ts
+*.spec.ts
+__tests__/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.sublime-project
+.sublime-workspace
+
+# Logs
+*.log
+logs/
+
+# Temporary
+tmp/
+temp/
+*.tmp
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Secrets
+.secrets/
+secrets.yaml
+*.key
+*.pem
+
+# Vite specific
+.vite-dist/
+
+# npm cache
+.npm/
