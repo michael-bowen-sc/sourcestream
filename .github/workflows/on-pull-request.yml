@@ -28,7 +28,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Lint Markdown
         run: npm run lint:md
@@ -55,7 +55,7 @@ jobs:
           cache: 'npm'
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Run tests
         run: cd apps/frontend && npm test -- --coverage --testPathIgnorePatterns=integration
@@ -164,7 +164,7 @@ jobs:
           cache: true
 
       - name: Install dependencies
-        run: npm ci
+        run: npm ci --legacy-peer-deps
 
       - name: Build Frontend
         run: cd apps/frontend && npm run build
