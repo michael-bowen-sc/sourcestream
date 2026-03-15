@@ -41,6 +41,7 @@ func (c *DatabaseConfig) ConnectionString() string {
 }
 
 // NewDatabase opens and verifies a PostgreSQL connection using environment configuration.
+// Connection pool is optimized for typical API workloads with proper timeout handling.
 func NewDatabase() (*sql.DB, error) {
 	config := NewDatabaseConfig()
 
@@ -49,10 +50,30 @@ func NewDatabase() (*sql.DB, error) {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
-	// Configure connection pool
-	db.SetMaxOpenConns(25)
-	db.SetMaxIdleConns(5)
-	db.SetConnMaxLifetime(5 * time.Minute)
+	// Configure connection pool for optimal performance
+	// MaxOpenConns: 50 connections (balance between resource usage and throughput)
+	// - Kubernetes staging: 2 pods × 25 = 50 total
+	// - Handles spikes while maintaining reasonable resource footprint
+	// - Prevents connection pool exhaustion under high load
+	db.SetMaxOpenConns(50)
+
+	// MaxIdleConns: 10 idle connections (keep connections warm)
+	// - Reduces latency for new queries (reuse warm connections)
+	// - Typical ratio 1:5 with MaxOpenConns
+	// - Reduces connection churn on the database
+	db.SetMaxIdleConns(10)
+
+	// ConnMaxLifetime: 30 minutes (refresh connections periodically)
+	// - Prevents long-lived connections from becoming stale
+	// - Works with database-side connection idle timeout
+	// - Allows clean session resets
+	db.SetConnMaxLifetime(30 * time.Minute)
+
+	// ConnMaxIdleTime: 5 minutes (close idle connections quickly)
+	// - Reduces resource usage on both sides
+	// - Connections idle longer than this are closed
+	// - Prevents accumulation of stale connections
+	db.SetConnMaxIdleTime(5 * time.Minute)
 
 	// Test the connection
 	if err := db.Ping(); err != nil {
@@ -60,6 +81,8 @@ func NewDatabase() (*sql.DB, error) {
 	}
 
 	log.Printf("Successfully connected to PostgreSQL database: %s", config.DBName)
+	log.Printf("Connection pool configured: MaxOpenConns=%d, MaxIdleConns=%d, MaxLifetime=30m, MaxIdleTime=5m",
+		50, 10)
 
 	return db, nil
 }

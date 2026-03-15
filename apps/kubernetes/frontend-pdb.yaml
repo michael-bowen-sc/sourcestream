@@ -1,0 +1,18 @@
+apiVersion: policy/v1
+kind: PodDisruptionBudget
+metadata:
+  name: frontend-pdb
+  namespace: sourcestream-staging
+  labels:
+    app: frontend
+    component: web
+spec:
+  # Ensure at least 1 pod remains available during disruptions
+  # Prevents complete outage while allowing node maintenance
+  minAvailable: 1
+  selector:
+    matchLabels:
+      app: frontend
+      component: web
+  # Prevent voluntary disruptions for these pod controllers
+  unhealthyPodEvictionPolicy: IfHealthyBudget
