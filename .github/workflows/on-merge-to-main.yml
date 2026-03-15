@@ -4,142 +4,141 @@ on:
   push:
     branches: [main]
 
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
 jobs:
   build-images:
-    name: Build Docker Images
+    name: Build & Push Docker Images
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
     outputs:
-      backend-image: ${{ steps.meta-backend.outputs.tags }}
-      frontend-image: ${{ steps.meta-frontend.outputs.tags }}
+      backend-image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend:${{ github.sha }}
+      frontend-image: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend:${{ github.sha }}
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
-      - name: Generate image metadata (Backend)
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Generate Backend image metadata
         id: meta-backend
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
-          images: sourcestream/backend
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/backend
           tags: |
+            type=sha,prefix=
             type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=sha,prefix=latest-
+            type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Generate image metadata (Frontend)
+      - name: Generate Frontend image metadata
         id: meta-frontend
-        uses: docker/metadata-action@v4
+        uses: docker/metadata-action@v5
         with:
-          images: sourcestream/frontend
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}/frontend
           tags: |
+            type=sha,prefix=
             type=ref,event=branch
-            type=sha,prefix={{branch}}-
-            type=sha,prefix=latest-
+            type=raw,value=latest,enable={{is_default_branch}}
 
-      - name: Build Backend image
-        uses: docker/build-push-action@v4
+      - name: Build and push Backend image
+        uses: docker/build-push-action@v5
         with:
           context: ./apps/backend
           file: ./apps/backend/Dockerfile
-          push: false
-          tags: sourcestream/backend:${{ github.sha }}
+          push: true
+          tags: ${{ steps.meta-backend.outputs.tags }}
+          labels: ${{ steps.meta-backend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: type=docker,dest=/tmp/backend-image.tar
 
-      - name: Build Frontend image
-        uses: docker/build-push-action@v4
+      - name: Build and push Frontend image
+        uses: docker/build-push-action@v5
         with:
           context: ./apps/frontend
           file: ./apps/frontend/Dockerfile
-          push: false
-          tags: sourcestream/frontend:${{ github.sha }}
+          push: true
+          tags: ${{ steps.meta-frontend.outputs.tags }}
+          labels: ${{ steps.meta-frontend.outputs.labels }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-          outputs: type=docker,dest=/tmp/frontend-image.tar
-
-      - name: Upload image artifacts
-        uses: actions/upload-artifact@v4
-        with:
-          name: docker-images
-          path: /tmp/*.tar
-          retention-days: 1
 
   verify-images:
     name: Verify Docker Images
     runs-on: ubuntu-latest
     needs: build-images
+    permissions:
+      contents: read
+      packages: read
     steps:
       - uses: actions/checkout@v4
 
-      - name: Download image artifacts
-        uses: actions/download-artifact@v4
+      - name: Log in to GitHub Container Registry
+        uses: docker/login-action@v3
         with:
-          name: docker-images
-          path: /tmp
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Load and verify Backend image
+      - name: Verify Backend image
         run: |
-          docker load --input /tmp/backend-image.tar
-          docker run --rm sourcestream/backend:${{ github.sha }} --version 2>&1 | head -5 || echo "Image loaded successfully"
+          docker pull ${{ needs.build-images.outputs.backend-image }}
+          echo "✓ Backend image verified: ${{ needs.build-images.outputs.backend-image }}"
 
-      - name: Load and verify Frontend image
+      - name: Verify Frontend image
         run: |
-          docker load --input /tmp/frontend-image.tar
-          docker image inspect sourcestream/frontend:${{ github.sha }} > /dev/null
-          echo "✓ Frontend image verified"
-
-  health-check:
-    name: Health Check (Staging Deployment)
-    runs-on: ubuntu-latest
-    if: always()
-    needs: [verify-images]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check staging deployment status
-        run: |
-          echo "Staging deployment workflow configured."
-          echo "⚠️  Manual configuration required:"
-          echo "  1. Set up container registry (GitHub Container Registry, ECR, DockerHub, etc.)"
-          echo "  2. Configure Kubernetes cluster access (kubeconfig, service account, token)"
-          echo "  3. Update deployment scripts in scripts/deploy/"
-          echo ""
-          echo "Once configured, add deployment steps here."
+          docker pull ${{ needs.build-images.outputs.frontend-image }}
+          echo "✓ Frontend image verified: ${{ needs.build-images.outputs.frontend-image }}"
 
   deployment-status:
     name: Deployment Summary
     runs-on: ubuntu-latest
     if: always()
-    needs: [build-images, verify-images, health-check]
+    needs: [build-images, verify-images]
     steps:
       - name: Generate deployment summary
+        env:
+          BACKEND_IMAGE: ${{ needs.build-images.outputs.backend-image }}
+          FRONTEND_IMAGE: ${{ needs.build-images.outputs.frontend-image }}
         run: |
           cat << 'EOF'
-          ✅ Build & Deployment Pipeline Complete
+          ✅ Docker Images Built & Pushed to GHCR
 
-          Summary:
+          Image Details:
           --------
-          - Backend image: sourcestream/backend:${{ github.sha }}
-          - Frontend image: sourcestream/frontend:${{ github.sha }}
-          - Build artifact storage: Available for 1 day
-          - Next steps: Container registry & k8s deployment
+          Backend:  ${{ env.BACKEND_IMAGE }}
+          Frontend: ${{ env.FRONTEND_IMAGE }}
+          Registry: ghcr.io/${{ github.repository }}
 
-          Configuration Needed:
-          --------------------
-          1. Configure container registry credentials in GitHub Secrets:
-             - REGISTRY_URL
-             - REGISTRY_USERNAME
-             - REGISTRY_PASSWORD
+          Available Tags:
+          --------
+          - ${{ github.sha }} (commit SHA)
+          - latest (if on main branch)
+          - main (branch name)
 
-          2. Configure Kubernetes cluster access in GitHub Secrets:
-             - KUBECONFIG (base64 encoded)
-             - or: K8S_TOKEN, K8S_SERVER, K8S_CA
+          Next Steps:
+          --------
+          1. Configure Kubernetes cluster access (if not done):
+             - Add K8S_KUBECONFIG or K8S_TOKEN to GitHub Secrets
 
-          3. Create scripts/deploy/staging.sh with kubectl commands
+          2. Create staging deployment script:
+             - scripts/deploy/staging.sh
 
-          4. Uncomment deployment steps in this workflow
+          3. Uncomment deployment job in this workflow
 
           See: docs/deployment.md for detailed configuration
+
+          View Images:
+          --------
+          https://github.com/${{ github.repository }}/pkgs/container
           EOF
