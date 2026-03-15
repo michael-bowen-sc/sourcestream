@@ -1,0 +1,69 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+.gitlab-ci.yml
+.circleci
+
+# Documentation
+*.md
+docs/
+README.md
+
+# Local development
+.env
+.env.local
+.env.*.local
+.DS_Store
+Thumbs.db
+
+# Testing
+*.test
+*.coverage
+.coverage
+coverage/
+
+# Build artifacts
+dist/
+build/
+*.o
+*.so
+*.dylib
+bin/
+obj/
+
+# IDEs
+.vscode/
+.idea/
+*.swp
+*.swo
+*.swn
+*~
+.sublime-project
+.sublime-workspace
+
+# Node (if any build scripts use it)
+node_modules/
+npm-debug.log
+yarn-error.log
+
+# PostgreSQL
+.pgdata/
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Secrets
+.secrets/
+secrets.yaml
+*.key
+*.pem
