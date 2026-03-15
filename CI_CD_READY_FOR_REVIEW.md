@@ -11,6 +11,7 @@ All files have been created and validated. Ready to commit to a feature branch a
 ### 1. Three GitHub Actions Workflows
 
 #### on-pull-request.yml ✅ Ready to Use
+
 - **Runs on**: PR opened, updated, or reopened
 - **Does**: Lint → Test → Build
 - **Time**: 5-10 minutes
@@ -18,12 +19,14 @@ All files have been created and validated. Ready to commit to a feature branch a
 - **Status**: Complete, no dependencies
 
 #### on-merge-to-main.yml ✅ Ready for Config
+
 - **Runs on**: Push to main branch
 - **Does**: Build Docker images
 - **Time**: 10-15 minutes
 - **Status**: Complete, needs registry/k8s setup
 
 #### scheduled-security.yml ✅ Ready to Use
+
 - **Runs on**: Daily 2 AM UTC (+ manual trigger)
 - **Does**: Security scanning, dependency audit
 - **Time**: 5 minutes
@@ -32,6 +35,7 @@ All files have been created and validated. Ready to commit to a feature branch a
 ### 2. OpenSpec Change Documentation
 
 Complete proposal with:
+
 - proposal.md - Why, what, impact
 - tasks.md - 46 implementation tasks
 - design.md - 10 technical decisions
@@ -52,12 +56,14 @@ Complete proposal with:
 ### Next Steps (Now)
 
 #### 1. Create Feature Branch
+
 ```bash
 git checkout -b feat/add-cicd-automation
 git status  # Should show 8 new files
 ```
 
 #### 2. Verify Files Exist
+
 ```bash
 ls -la .github/workflows/
 # Should show: on-pull-request.yml, on-merge-to-main.yml, scheduled-security.yml
@@ -70,6 +76,7 @@ ls -la openspec/changes/add-comprehensive-cicd-automation/
 ```
 
 #### 3. Commit Changes
+
 ```bash
 git add .
 
@@ -84,18 +91,22 @@ Implements add-comprehensive-cicd-automation recommendation."
 ```
 
 #### 4. Push to GitHub
+
 ```bash
 git push origin feat/add-cicd-automation
 ```
 
 #### 5. Open Pull Request
+
 - Go to GitHub repo
 - Create PR: feat/add-cicd-automation → main
 - Watch on-pull-request.yml workflow run
 - Should take 5-10 minutes for all checks to complete
 
 #### 6. Review Workflow Output
+
 In GitHub PR, check "Checks" tab:
+
 - Lint (should pass)
 - Test Frontend (should pass)
 - Test Backend (should pass)
@@ -105,6 +116,7 @@ In GitHub PR, check "Checks" tab:
 If anything fails, see docs/ci-cd.md troubleshooting section
 
 #### 7. Merge PR (Once Tests Pass)
+
 ```bash
 # Via GitHub UI, or:
 git checkout main
@@ -114,7 +126,9 @@ git push
 ```
 
 #### 8. Watch Merge Workflow
+
 After merge, on-merge-to-main.yml runs:
+
 - Builds Docker images
 - Shows in GitHub Actions tab
 - Takes 10-15 minutes
@@ -128,14 +142,16 @@ These can be done next week once Phase 1 is proven working:
 ### To Enable Phase 2 (Staging Deployment)
 
 1. Set GitHub Secrets in repo Settings → Secrets and variables:
-   ```
+
+   ```bash
    REGISTRY_URL=ghcr.io (or your registry)
    REGISTRY_USERNAME=...
    REGISTRY_PASSWORD=...
    ```
 
 2. Set Kubernetes access:
-   ```
+
+   ```bash
    KUBECONFIG=<base64 encoded kubeconfig>
    # OR:
    K8S_TOKEN=...
@@ -151,7 +167,7 @@ These can be done next week once Phase 1 is proven working:
 
 ## Files Created
 
-```
+```bash
 New files (8 total):
 ├── .github/workflows/
 │   ├── on-pull-request.yml (415 lines)
@@ -176,6 +192,7 @@ Updated files (1):
 ## What Happens When
 
 ### Immediate (Today/Tomorrow)
+
 - ✅ Feature branch created
 - ✅ PR opened
 - ✅ on-pull-request.yml runs automatically
@@ -183,16 +200,19 @@ Updated files (1):
 - ✅ PR merged
 
 ### First Day After Merge
+
 - ✅ on-merge-to-main.yml runs
 - ✅ Docker images built
 - ✅ Team can see deployment summary
 
 ### Daily at 2 AM UTC (Starting Tomorrow)
+
 - ✅ scheduled-security.yml runs
 - ✅ Security report generated
 - ✅ Issues (if any) appear in GitHub
 
 ### Every PR (Going Forward)
+
 - ✅ on-pull-request.yml runs automatically
 - ✅ Developers see results in 5-10 minutes
 - ✅ Can't merge if tests fail (if branch protection enabled)
@@ -218,18 +238,21 @@ Updated files (1):
 ## Team Impact
 
 ### For Developers
+
 - Automatic feedback within 5-10 minutes
 - No more "why did this break" surprises
 - Clear what to fix when tests fail
 - Better code quality
 
 ### For DevOps
+
 - Standardized deployment process
 - Audit trail in GitHub
 - Easy rollback if needed
 - Staging always reflects main
 
 ### For Project
+
 - Higher reliability
 - Fewer production issues
 - Faster iteration
@@ -240,7 +263,9 @@ Updated files (1):
 ## Documentation Highlights
 
 ### docs/ci-cd.md
+
 Everything a developer needs to know:
+
 - How workflows are triggered
 - What each workflow does
 - How to interpret results
@@ -249,7 +274,9 @@ Everything a developer needs to know:
 - How to modify/extend
 
 ### docs/deployment.md
+
 Everything an operator needs to know:
+
 - Environment overview
 - Automatic deployment flow
 - Manual deployment procedure
@@ -279,6 +306,7 @@ Everything an operator needs to know:
 ## Questions?
 
 See:
+
 - docs/ci-cd.md - For workflow details and troubleshooting
 - docs/deployment.md - For deployment questions
 - openspec/changes/add-comprehensive-cicd-automation/design.md - For technical decisions

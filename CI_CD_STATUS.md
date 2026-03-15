@@ -72,11 +72,13 @@ Previously, the frontend codebase had TypeScript compilation errors. These have 
 ## Build Status
 
 ✅ **Frontend Build**: PASSING
+
 - TypeScript compilation: ✅ Complete
 - Vite build: ✅ Complete
 - Production bundle size: 585.53 kB (gzipped)
 
 ✅ **Backend Build**: PASSING
+
 - Go compilation: ✅ Complete
 - Binary created: `apps/backend/bin/sourcestream-backend`
 
@@ -87,7 +89,7 @@ Previously, the frontend codebase had TypeScript compilation errors. These have 
 1. **Create Pull Request**
    - Branch: `feat/add-cicd-automation` (now with all fixes applied)
    - Target: `main`
-   - Go to: https://github.com/michael-bowen-sc/sourcestream/pulls
+   - Go to: [sourcestream pull requests](https://github.com/michael-bowen-sc/sourcestream/pulls)
    - All build errors are now fixed; workflows should pass
 
 ### After PR Merge
