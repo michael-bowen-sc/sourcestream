@@ -1,4 +1,4 @@
-module.exports = {
+export default {
   testEnvironment: "jsdom",
   setupFilesAfterEnv: ["<rootDir>/src/test/setup.ts"],
   moduleNameMapping: {

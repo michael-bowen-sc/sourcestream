@@ -9,11 +9,7 @@ export const handlers = [
     },
   ),
 
-  http.get("http://localhost:8080/api/requests", ({ request }) => {
-    const url = new URL(request.url);
-    const userId = url.searchParams.get("userId");
-    const status = url.searchParams.get("status");
-
+  http.get("http://localhost:8080/api/requests", () => {
     return HttpResponse.json([
       {
         id: "req-1",
