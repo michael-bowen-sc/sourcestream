@@ -16,7 +16,7 @@ export interface SubmitRequestData {
 }
 
 // Simple HTTP-based API client (can be replaced with proper gRPC-Web later)
-const apiCall = async (endpoint: string, data: any) => {
+const apiCall = async (endpoint: string, data: Record<string, unknown>) => {
   const response = await fetch(`${GRPC_URL}/api/${endpoint}`, {
     method: "POST",
     headers: {

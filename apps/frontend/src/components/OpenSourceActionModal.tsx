@@ -194,7 +194,7 @@ const OpenSourceActionModal: React.FC<OpenSourceActionModalProps> = ({
         },
       ];
       setApprovedProjects(mockProjects);
-    } catch (error) {
+    } catch {
       console.error("Failed to fetch approved projects:", error);
     } finally {
       setLoadingProjects(false);
@@ -265,7 +265,7 @@ const OpenSourceActionModal: React.FC<OpenSourceActionModalProps> = ({
       await onSubmit(formData);
       alert("Request submitted successfully!");
       handleClose();
-    } catch (error) {
+    } catch {
       alert("Error submitting request. Please try again.");
     } finally {
       setLoading(false);
