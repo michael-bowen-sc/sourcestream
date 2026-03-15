@@ -18,7 +18,7 @@ export const useRequests = (userId: string) => {
       try {
         const fetchedRequests = await getRequests(userId, status);
         setRequests(
-          fetchedRequests.map((req: any) => ({
+          (fetchedRequests || []).map((req: Request) => ({
             id: req.id,
             type: req.type as "project" | "pullrequest" | "access",
             title: req.title,

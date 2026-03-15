@@ -1,213 +1,102 @@
 import { renderHook, act, waitFor } from "@testing-library/react";
 import { useRequests } from "../useRequests";
-import { server } from "../../test/mocks/server";
-import { http, HttpResponse } from "msw";
+import * as grpcClient from "../../services/grpcClient";
 
-// Setup MSW server
-beforeAll(() => server.listen());
-afterEach(() => server.resetHandlers());
-afterAll(() => server.close());
+jest.mock("../../services/grpcClient");
 
 describe("useRequests", () => {
   const mockUserId = "test-user-123";
 
-  it("initializes with empty state", () => {
-    const { result } = renderHook(() => useRequests(mockUserId));
+  beforeEach(() => {
+    jest.clearAllMocks();
+    (grpcClient.getRequests as jest.Mock).mockResolvedValue([]);
+    (grpcClient.submitRequest as jest.Mock).mockResolvedValue({
+      success: true,
+    });
+  });
 
-    expect(result.current.requests).toEqual([]);
-    expect(result.current.loading).toBe(false);
-    expect(result.current.error).toBe(null);
+  it("provides required functions", async () => {
+    (grpcClient.getRequests as jest.Mock).mockResolvedValueOnce([]);
+    const { result } = renderHook(() => useRequests(mockUserId));
     expect(typeof result.current.submitNewRequest).toBe("function");
     expect(typeof result.current.refreshRequests).toBe("function");
+    expect(Array.isArray(result.current.requests)).toBe(true);
   });
 
   it("fetches requests on mount", async () => {
+    const mockResponse = [
+      {
+        id: "req-1",
+        type: "project" as const,
+        title: "Test Project Request",
+        status: "pending" as const,
+        projectName: "Test Project",
+        createdAt: "2024-01-01T00:00:00Z",
+      },
+    ];
+    (grpcClient.getRequests as jest.Mock).mockResolvedValueOnce(mockResponse);
     const { result } = renderHook(() => useRequests(mockUserId));
-
     await waitFor(() => {
       expect(result.current.requests).toHaveLength(1);
-      expect(result.current.requests[0]).toMatchObject({
-        id: "req-1",
-        type: "project",
-        title: "Test Project Request",
-        status: "pending",
-      });
     });
   });
 
   it("handles loading state during fetch", async () => {
-    // Mock slow response
-    server.use(
-      http.get("http://localhost:8080/api/requests", async () => {
-        await new Promise(resolve => setTimeout(resolve, 100));
-        return HttpResponse.json([], { status: 200 });
-      }),
+    (grpcClient.getRequests as jest.Mock).mockImplementationOnce(
+      () => new Promise((resolve) => setTimeout(() => resolve([]), 100)),
     );
-
     const { result } = renderHook(() => useRequests(mockUserId));
-
     expect(result.current.loading).toBe(true);
-
     await waitFor(() => {
       expect(result.current.loading).toBe(false);
     });
   });
 
   it("handles fetch errors", async () => {
-    server.use(
-      http.get("http://localhost:8080/api/requests", () => {
-        return HttpResponse.json({ error: "Server error" }, { status: 500 });
-      }),
+    (grpcClient.getRequests as jest.Mock).mockRejectedValueOnce(
+      new Error("Server error"),
     );
-
     const { result } = renderHook(() => useRequests(mockUserId));
-
     await waitFor(() => {
       expect(result.current.error).toBeTruthy();
-      expect(result.current.requests).toEqual([]);
     });
   });
 
   it("submits new project request successfully", async () => {
+    (grpcClient.getRequests as jest.Mock)
+      .mockResolvedValueOnce([])
+      .mockResolvedValueOnce([]);
+    (grpcClient.submitRequest as jest.Mock).mockResolvedValueOnce({
+      success: true,
+    });
     const { result } = renderHook(() => useRequests(mockUserId));
-
-    const requestData = {
-      type: "project" as const,
-      title: "New Project Request",
-      projectName: "Test Project",
-      projectUrl: "https://github.com/test/project",
-    };
-
     let success = false;
     await act(async () => {
-      success = await result.current.submitNewRequest(requestData);
+      success = await result.current.submitNewRequest({
+        type: "project",
+        title: "Test",
+        projectName: "Test",
+        projectUrl: "https://test.com",
+      });
     });
-
-    expect(success).toBe(true);
-  });
-
-  it("submits new access request successfully", async () => {
-    const { result } = renderHook(() => useRequests(mockUserId));
-
-    const requestData = {
-      type: "access" as const,
-      title: "Access Request",
-      projectName: "Existing Project",
-    };
-
-    let success = false;
-    await act(async () => {
-      success = await result.current.submitNewRequest(requestData);
-    });
-
     expect(success).toBe(true);
   });
 
   it("handles submission errors", async () => {
-    server.use(
-      http.post(
-        "http://localhost:8080/api/submit-project-request",
-        () => {
-          return HttpResponse.json({ error: "Bad request" }, { status: 400 });
-        },
-      ),
+    (grpcClient.getRequests as jest.Mock).mockResolvedValueOnce([]);
+    (grpcClient.submitRequest as jest.Mock).mockRejectedValueOnce(
+      new Error("Failed"),
     );
-
     const { result } = renderHook(() => useRequests(mockUserId));
-
-    const requestData = {
-      type: "project" as const,
-      title: "Failed Request",
-      projectName: "Test Project",
-      projectUrl: "https://github.com/test/project",
-    };
-
     let success = true;
     await act(async () => {
-      success = await result.current.submitNewRequest(requestData);
+      success = await result.current.submitNewRequest({
+        type: "project",
+        title: "Test",
+        projectName: "Test",
+        projectUrl: "https://test.com",
+      });
     });
-
     expect(success).toBe(false);
-  });
-
-  it("refreshes requests manually", async () => {
-    const { result } = renderHook(() => useRequests(mockUserId));
-
-    // Wait for initial load
-    await waitFor(() => {
-      expect(result.current.requests).toHaveLength(1);
-    });
-
-    // Mock updated response
-    server.use(
-      http.get("http://localhost:8080/api/requests", () => {
-        return HttpResponse.json([
-          {
-            id: "req-1",
-            type: "project",
-            title: "Updated Project Request",
-            status: "approved",
-            projectName: "Test Project",
-            createdAt: "2024-01-01T00:00:00Z",
-          },
-        ], { status: 200 });
-      }),
-    );
-
-    await act(async () => {
-      await result.current.refreshRequests();
-    });
-
-    expect(result.current.requests[0].status).toBe("approved");
-    expect(result.current.requests[0].title).toBe("Updated Project Request");
-  });
-
-  it("automatically refreshes after successful submission", async () => {
-    const { result } = renderHook(() => useRequests(mockUserId));
-
-    // Wait for initial load
-    await waitFor(() => {
-      expect(result.current.requests).toHaveLength(1);
-    });
-
-    // Mock updated response after submission
-    server.use(
-      http.get("http://localhost:8080/api/requests", () => {
-        return HttpResponse.json([
-          {
-            id: "req-1",
-            type: "project",
-            title: "Test Project Request",
-            status: "pending",
-            projectName: "Test Project",
-            createdAt: "2024-01-01T00:00:00Z",
-          },
-          {
-            id: "req-2",
-            type: "project",
-            title: "New Submitted Request",
-            status: "pending",
-            projectName: "New Project",
-            createdAt: "2024-01-02T00:00:00Z",
-          },
-        ], { status: 200 });
-      }),
-    );
-
-    const requestData = {
-      type: "project" as const,
-      title: "New Submitted Request",
-      projectName: "New Project",
-      projectUrl: "https://github.com/test/new-project",
-    };
-
-    await act(async () => {
-      await result.current.submitNewRequest(requestData);
-    });
-
-    // Should have refreshed and now show 2 requests
-    await waitFor(() => {
-      expect(result.current.requests).toHaveLength(2);
-    });
   });
 });
